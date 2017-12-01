@@ -1,53 +1,36 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <libusb-1.0/libusb.h>
-
-#define ID_PRODUCT 0x2003
+#include "fonctions.h"
 
 libusb_device_handle * handle;
 
 
 int main(void)
 {
-	int err = 0;
-	libusb_device *my_device = NULL;
-	libusb_context *context;
-	if(libusb_init(&context)i!=0) {perror("libusb_init"); exit(-1);}
-	libusb_device* my_device = get_usb_device(context);
-	struct libusb_device_descriptor desc;
-	uint8_t bus = libusb_get_bus_number(my_device)	
-	
 
-	err = libusb_open(my_device, &handle);
-	//printf("err = %d\n",err);
-	if(err){perror("Fail open device"); exit(-1);}
-
-
-	my_device = libusb_get_device(handle); //Inutile dans ce cas précis
-	struct libusb_config_descriptor * config;
-	libusb_get_active_config_descriptor(my_device,&config);
-
-	uint8_t num_config = config->bConfigurationValue;
-	uint8_t k = 0;
-	
-	struct libusb_interface interf;
-	struct libusb_interface_descriptor interd;
-	struct libusb_endpoint_descriptor endp;	
-
-
-	
-	for(i=0; i<config->bNumInterfaces; i++)
-	{
-		interf = (config->interface)[i];
-		interd = (interf.altsetting)[0];
-
-
-		if(libusb_kernel_driver_active(handle,interd.bInterfaceNumber)){
-			int status=libusb_detach_kernel_driver(handle,interd.bInterfaceNumber);
-			if(status!=0){ perror("libusb_detach_kernel_driver"); exit(-1); }
-		}
-				
+	libusb_context* context;
+	if(libusb_init(&context)!=0){
+		perror("libusb_get_device_list");
+		exit(-1);
 	}
+
+	struct libusb_device_descriptor desc;
+	if(get_usb_device(context,&desc)){perror("Device not found");exit(-1);}
+	libusb_device* my_device = libusb_get_device(handle);
+	uint8_t bus = libusb_get_bus_number(my_device);
+	uint8_t address = libusb_get_device_address(my_device);
+	printf("Device found @ (Bus:Adress) %d:%d\n",bus, address);
+	printf("Vendor ID 0x0%x\n", desc.idVendor);
+	printf("Product ID 0x0%x\n", desc.idProduct);
+
+	
+	/* Détacher le kernel de la configuration active */
+
+	unclaim_active_config(my_device);
+
+
+/*
 
 	libusb_get_config_descriptor(my_device,0,&config);
 	num_config = config->bConfigurationValue;
@@ -60,11 +43,6 @@ int main(void)
 	num_config = config->bConfigurationValue;
 	k = 0;
 	
-	/*
-	struct libusb_interface interf;
-	struct libusb_interface_descriptor interd;
-	struct libusb_endpoint_descriptor endp;	
-	*/
 
 
 	for(i=0; i<config->bNumInterfaces; i++)
@@ -99,8 +77,8 @@ int main(void)
 	//libusb_attach_kernel_driver(handle,0);
 	//libusb_attach_kernel_driver(handle,1);
 
+*/
 	libusb_close(handle);
-	libusb_free_device_list(list,1);
 	libusb_exit(context);
 
 

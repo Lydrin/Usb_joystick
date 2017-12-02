@@ -8,32 +8,77 @@
 //Bouton droit <=> D3 <=> PD3 
 //Bouton bas <=> D5 <=> PD5
 
+#define BOUTON_PORT PORTD
+#define BOUTON_DDR DDRB
+#define BOUTON_PCIE PCIE2
 
-#define BOUTON_HAUT_PORT PORTD
 #define BOUTON_HAUT_PIN PD4
 #define BOUTON_HAUT_INT PCINT20
-#define BOUTON_HAUT_INPUT_REG PCMSK
 
-#define BOUTON_BAS PORTD
 #define BOUTON_BAS_PIN PD5
 #define BOUTON_BAS_INT PCINT21
-#define BOUTON_BAS_INPUT_REG PCMSK
 
-#define BOUTON_GAUCHE_PORT PORTD
 #define BOUTON_GAUCHE_PIN PD6
 #define BOUTON_GAUCHE_INT PCINT22
-#define BOUTON_GAUCHE_INPUT_REG PCMSK
 
-#define BOUTON_DROIT_PORT PORTD
 #define BOUTON_DROIT_PIN PD3
 #define BOUTON_DROIT_INT PCINT19
-#define BOUTON_DROIT_INPUT_REG PCMSK
 
+#define BAUDRATE 103
+
+volatile uint8_t ancien_portb = 0xFF; 
 
 void init_boutons(void){    
-    BOUTON_HAUT_INPUT_REG |= 1<<BUTON_HAUT_PIN;
-    BOUTON_BAS_INPUT_REG |= 1<<BUTON_BAS_PIN;
-    BOUTON_GAUCHE_INPUT_REG |= 1<<BUTON_GAUCHE_PIN;
-    BOUTON_DROIT_INPUT_REG |= 1<<BUTON_DROIT_PIN;
-    BOUTON_HAUT_PORT |= (0<<PUD);
+   DDRD &= ~((1 << DDD3) | (1 << DDD4) | (1 << DDD5) | (1 << DDD6));
+   //PD3,4,5,6 sont maintenant des entrées
+   PORTB |= ((1 << PORTD3) | (1 << PORTD4) | (1 << PORTD5) | (1 << PORTD6));
+   //On active le PULL-UP sur les entrées
+   PCICR |= (1 << PCIE2);
+   PCMSK2 |= (1<< PCINT19) | (1<< PCINT20) | (1<< PCINT21) | (1<< PCINT22);
+   sei();
+}
+
+void init_serial(void){
+    uint8_t baudrate = BAUDRATE;
+    UBRR0H = 0;
+    UBRR0L = baudrate;
+
+    UCSR0B = (1<<TXEN0);
+
+    UCSR0C = 0x06;
+}
+
+void send_serial(unsigned char c)
+{
+    loop_until_bit_is_set(UCSR0A, UDRE0);
+    UDR0 = c;
+}
+
+ISR(PCINT2_vect){
+    uint8_t bits_change;
+    bits_change = PINB ^ ancien_portb; 
+    ancien_portb = PINB;
+    if(bits_change & (1 << PINB3) ){
+        //Bouton droit appuyé
+        send_serial('d');
+    }
+    if(bits_change & (1 << PINB4) ){
+        //Bouton haut appuyé
+        send_serial('h');
+    }
+    if(bits_change & (1 << PINB5) ){
+        //Bouton bas appuyé
+        send_serial('b');
+    }
+    if(bits_change & (1 << PINB6) ){
+        //Bouton gauche appuyé
+        send_serial('g');
+    }
+    /* TODO : Gerer les rebondissements */
+}
+    
+int main(void){
+    init_serial();
+    init_boutons();
+    return 0;
 }

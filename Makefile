@@ -1,6 +1,19 @@
-usb: fonctions.o usb_host.o
-	gcc -o usb fonctions.o usb_host.o -lusb-1.0
-fonctions.o: fonctions.c
-	gcc -o fonctions.o -c fonctions.c -lusb-1.0
-usb_host.o: usb_host.c fonctions.h
-	gcc -o usb_host.o -c usb_host.c -lusb-1.0
+CC = gcc
+CFLAGS = -W -Wall -pedantic -g
+LDFLAGS = -lusb-1.0
+EXEC = USB
+SRC = $(wildcard *.c)
+OBJ = $(SRC:.c=.o)
+
+all: $(EXEC)
+
+main: $(OBJ)
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+%.o: %.c
+	$(CC) -o $@ -c $< $(CFLAGS)
+
+clean:
+	rm -rf *.o
+cleanall: clean
+	rm -rf $(EXEC)

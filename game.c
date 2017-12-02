@@ -9,7 +9,15 @@
 #define DOWN 2
 #define RIGHT 3
 #define LEFT 4
-#define MAX_BONUS 3
+#define LOW 120
+#define NORMAL 80
+#define FAST 50
+#define INSANE 5
+
+/* Game parameters */
+
+#define SPAWNING_RATE INSANE
+#define MAX_BONUS 30
 
 /* Structures */
 
@@ -90,7 +98,7 @@ void bonus_create(void)
 	int i;
 	int rand_x;
 	int rand_y;
-	int add_bonus = rand()%20;
+	int add_bonus = rand()%SPAWNING_RATE;
 	char str[12];
 
 	if(add_bonus == 1 && nb_bonus < MAX_BONUS)

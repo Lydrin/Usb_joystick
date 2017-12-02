@@ -59,20 +59,34 @@ ISR(PCINT2_vect){
     bits_change = PINB ^ ancien_portb; 
     ancien_portb = PINB;
     if(bits_change & (1 << PINB3) ){
-        //Bouton droit appuyé
-        send_serial('d');
+        if( (PINB & (1 << PINB3) ) == 1){
+            //Front montant
+            send_serial('d');
+        }
+        else{
+            //Front descendant
+        }
     }
     if(bits_change & (1 << PINB4) ){
-        //Bouton haut appuyé
-        send_serial('h');
+        if( (PINB & (1 << PINB4) ) == 1){
+            send_serial('d');
+        }
+        else{
+        }
     }
     if(bits_change & (1 << PINB5) ){
-        //Bouton bas appuyé
-        send_serial('b');
+        if( (PINB & (1 << PINB5) ) == 1){
+            send_serial('d');
+        }
+        else{
+        }
     }
     if(bits_change & (1 << PINB6) ){
-        //Bouton gauche appuyé
-        send_serial('g');
+        if( (PINB & (1 << PINB6) ) == 1){
+            send_serial('d');
+        }
+        else{
+        }
     }
     /* TODO : Gerer les rebondissements */
 }

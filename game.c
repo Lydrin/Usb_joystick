@@ -8,13 +8,51 @@
 #define RIGHT 3
 #define LEFT 4
 
+int dir = RIGHT;
+int x = 0;
+int y = 0;
+
+void set_dir(char c)
+{
+	switch(c) {
+		case 'q':
+			dir=LEFT;
+			break;
+		case 'd':
+			dir=RIGHT;
+			break;
+		case 'z':
+			dir=UP;
+			break;
+		case 's':
+			dir=DOWN;
+			break;
+	}
+}
+
+void move_snake(int dir)
+{
+	switch(dir) {
+		case UP:
+			y--;
+			break;
+		case DOWN:
+			y++;
+			break;
+		case RIGHT:
+			x++;
+			break;
+		case LEFT:
+			x--;
+			break;
+	}
+}
+
 int main(int argc, char *argv[]) {
 
-	int x = 10, y = 10;
 	int max_y = 0, max_x = 0;
 	int next_x = 0;
 	int next_y = 0;
-	int dir;
 	int ch;
 
 	initscr();
@@ -25,25 +63,8 @@ int main(int argc, char *argv[]) {
 
 	while(1) {
 		ch = getch();
-		if(ch == 'q'){dir=LEFT;}
-		if(ch == 'd'){dir=RIGHT;}
-		if(ch == 'z'){dir=UP;}
-		if(ch == 's'){dir=DOWN;}
-
-		switch(dir) {
-			case UP:
-				y--;
-				break;
-			case DOWN:
-				y++;
-				break;
-			case RIGHT:
-				x++;
-				break;
-			case LEFT:
-				x--;
-		break;
-		}	
+		set_dir(ch);
+		move_snake(dir);
 
 		//getmaxyx(stdscr, max_y, max_x);
 		

@@ -1,8 +1,9 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <time.h>
+#include <string.h>
 
-#define DELAY 30000
+#define DELAY 50000
 #define UP 1
 #define DOWN 2
 #define RIGHT 3
@@ -10,7 +11,9 @@
 
 int dir = RIGHT;
 int x = 0;
-int y = 0;
+int y = 2;
+char snake_shape[] = "o";
+char title[] = "Simple Snake v1.0";
 
 void set_dir(char c)
 {
@@ -37,11 +40,11 @@ void move_snake(int dir)
 	switch(dir) {
 		case UP:
 			y--;
-			if(y == -1){y=max_y;}
+			if(y == 1){y=max_y;}
 			break;
 		case DOWN:
 			y++;
-			if(y == max_y+1){y=0;}
+			if(y == max_y+1){y=2;}
 			break;
 		case RIGHT:
 			x++;
@@ -54,25 +57,40 @@ void move_snake(int dir)
 	}
 }
 
-int main(int argc, char *argv[]) {
+void title_draw(void)
+{
+	int max_y = 0, max_x = 0, i = 0;
+	getmaxyx(stdscr, max_y, max_x);
+	for(i=0;i<=max_x;i++)
+	{
+		mvprintw(1, i, "#");
+	}
+	
+	int middle = (max_x/2)-(strlen(title)/2);
+	mvprintw(0, middle, title);
+}
 
-	int next_x = 0;
-	int next_y = 0;
+int main(int argc, char *argv[]) 
+{
 	int ch;
-
+	
 	initscr();
 	noecho();
 	cbreak();
 	curs_set(FALSE);
 	timeout(30);
-
+	
+	mvprintw(0, 0, "Coucou");
+	
 	while(1) {
 		ch = getch();
 		set_dir(ch);
 		move_snake(dir);
 		
 		clear();
-		mvprintw(y, x, "o");
+		title_draw();
+		mvprintw(y, x, snake_shape);
+	
 		refresh();
 
 		usleep(DELAY);

@@ -26,15 +26,15 @@
 
 #define BAUDRATE 103
 
-volatile uint8_t ancien_portb = 0xFF; 
+volatile uint8_t ancien_portd = 0xFF; 
 
 void init_boutons(void){    
    DDRD &= ~((1 << DDD3) | (1 << DDD4) | (1 << DDD5) | (1 << DDD6));
    //PD3,4,5,6 sont maintenant des entrées
-   PORTB |= ((1 << PORTD3) | (1 << PORTD4) | (1 << PORTD5) | (1 << PORTD6));
+   PORTD |= ((1 << PORTD3) | (1 << PORTD4) | (1 << PORTD5) | (1 << PORTD6));
    //On active le PULL-UP sur les entrées
    PCICR |= (1 << PCIE2);
-   PCMSK2 |= (1<< PCINT19) | (1<< PCINT20) | (1<< PCINT21) | (1<< PCINT22);
+   PCMSK2 |= ((1<< PCINT19) | (1<< PCINT20) | (1<< PCINT21) | (1<< PCINT22));
    sei();
 }
 
@@ -54,45 +54,61 @@ void send_serial(unsigned char c)
     UDR0 = c;
 }
 
-ISR(PCINT2_vect){
+void wait(void){
+    cli();
+    _delay_ms(10);
+    sei();
+}
+
+
+ISR (PCINT2_vect){
     uint8_t bits_change;
-    bits_change = PINB ^ ancien_portb; 
-    ancien_portb = PINB;
-    if(bits_change & (1 << PINB3) ){
-        if( (PINB & (1 << PINB3) ) == 1){
+    bits_change = PIND ^ ancien_portd; 
+    ancien_portd = PIND;
+    if(bits_change & (1 << PIND3) ){
+        if( (PIND & (1 << PIND3) ) == (1 << PIND3)){
             //Front montant
             send_serial('d');
         }
         else{
+            send_serial('D');
             //Front descendant
         }
     }
-    if(bits_change & (1 << PINB4) ){
-        if( (PINB & (1 << PINB4) ) == 1){
-            send_serial('d');
+    if(bits_change & (1 << PIND4) ){
+        if( (PIND & (1 << PIND4) ) == (1 << PIND4)){
+            send_serial('h');
         }
         else{
+            send_serial('H');
         }
     }
-    if(bits_change & (1 << PINB5) ){
-        if( (PINB & (1 << PINB5) ) == 1){
-            send_serial('d');
+    if(bits_change & (1 << PIND5) ){
+        if( (PIND & (1 << PIND5) ) == (1 << PIND5)){
+            send_serial('b');
         }
         else{
+            send_serial('B');
         }
     }
-    if(bits_change & (1 << PINB6) ){
-        if( (PINB & (1 << PINB6) ) == 1){
-            send_serial('d');
+    if(bits_change & (1 << PIND6) ){
+        if( (PIND & (1 << PIND6) ) == (1 << PIND6)){
+            send_serial('g');
         }
         else{
+            send_serial('G');
         }
     }
     /* TODO : Gerer les rebondissements */
+    wait();
 }
+
+
     
 int main(void){
     init_serial();
     init_boutons();
+    while(1){
+    }
     return 0;
 }

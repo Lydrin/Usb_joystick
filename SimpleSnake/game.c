@@ -13,6 +13,7 @@
 #define NORMAL 80
 #define FAST 50
 #define INSANE 5
+#define INACTIV 0
 
 /* Game parameters */
 
@@ -26,8 +27,27 @@ typedef struct bonus{
 	int activ;
 }Bonus;
 
+typedef struct pos{
+	int x;
+	int y;
+	int dir;
+}Pos;
+
+typedef struct Cell
+{
+    Pos pos;
+    struct Cell* next;
+}Cell;
+
+typedef Cell* Snake;
+
+typedef Cell* ptr_cell;
+
+
 /* Variables globales */
 
+Snake snake;
+Cell snake_end;
 int max_bonus;
 int spawning_rate;
 int score = 0;
@@ -35,8 +55,6 @@ int nb_bonus = 0;
 int max_x, max_y;
 Bonus bonus_list[MAX_BONUS];
 int dir = RIGHT;
-int x = 0;
-int y = 2;
 char snake_shape[] = "o";
 char title[] = "Simple Snake v1.0";
 
@@ -64,38 +82,27 @@ void set_dir(int c)
 	}
 }
 
-void move_snake(int dir)
-{
-	switch(dir) {
-		case UP:
-			y--;
-			if(y == 1){y=max_y;}
-			break;
-		case DOWN:
-			y++;
-			if(y == max_y+1){y=2;}
-			break;
-		case RIGHT:
-			x++;
-			if(x == max_x+1){x=0;}
-			break;
-		case LEFT:
-			x--;
-			if(x == -1){x=max_x;}
-			break;
-	}
-}
-
 void title_draw(void)
 {
 	int i = 0;
 	for(i=0;i<=max_x;i++)
 	{
 		mvprintw(1, i, "#");
+		mvprintw(max_y-1, i, "#");
+	}
+
+	for(i=0;i<=max_y;i++)
+	{
+		mvprintw(i+2, 0, "#");
+		mvprintw(i+2, max_x-1, "#");
 	}
 	
 	int middle = (max_x/2)-(strlen(title)/2);
+	attron(A_BOLD);
+	attron(COLOR_PAIR(2));
 	mvprintw(0, middle, title);
+	attroff(A_BOLD);
+	attron(COLOR_PAIR(2));
 }
 
 void bonus_create(void)
@@ -108,8 +115,8 @@ void bonus_create(void)
 
 	if(add_bonus == 1 && nb_bonus < max_bonus)
 	{
-		rand_x = rand()%max_x;
-		rand_y = rand()%max_y;
+		rand_x = rand()%max_x-1;
+		rand_y = rand()%max_y-1;
 		
 		if(rand_y <= 1){rand_y = 2;}
 		
@@ -165,17 +172,62 @@ void score_disp(void)
 	mvprintw(0, 0, score_txt);
 }
 
+void head_add(Snake* snake, Pos pos) //début
+{
+    ptr_cell temp = *snake;
+    *snake = malloc(sizeof(Cell));
+    (*(*snake)).pos = pos;
+    (*(*snake)).next = temp;
+}
 
-void bonus_check(void)
+void snake_grow(Snake* snake)
+{
+	int first_pos_x = (*snake)->pos.x;
+	int first_pos_y = (*snake)->pos.y;
+	int first_dir = (*snake)->pos.dir;
+	Pos new_pos;
+
+	switch(first_dir)
+	{
+		case UP:
+			new_pos.x = first_pos_x+1;
+			new_pos.y = first_pos_y;
+			new_pos.dir = UP;
+			head_add(snake, new_pos);			
+			break;
+		case DOWN:
+			new_pos.x = first_pos_x-1;
+			new_pos.y = first_pos_y;
+			new_pos.dir = DOWN;
+			head_add(snake, new_pos);
+			break;
+		case RIGHT:
+			new_pos.x = first_pos_x;
+			new_pos.y = first_pos_y-1;
+			new_pos.dir = RIGHT;
+			head_add(snake, new_pos);
+			break;
+		case LEFT:
+			new_pos.x = first_pos_x;
+			new_pos.y = first_pos_y+1;
+			new_pos.dir = LEFT;
+			head_add(snake, new_pos);
+			break;
+	}	
+
+}
+
+void bonus_check(Snake* snake)
 {
 	int i;
 	for(i=0; i<max_bonus; i++)
 	{
-		if(x == bonus_list[i].pos_x && y == bonus_list[i].pos_y)
+		if(snake_end.pos.x == bonus_list[i].pos_y && snake_end.pos.y == bonus_list[i].pos_x)
 		{
 			score++;
 			nb_bonus--;
 			bonus_list[i].activ = 0;
+			snake_grow(snake);
 			break;
 		}
 	}	
@@ -265,7 +317,7 @@ int quit_disp(void)
 
 	char* choices[2];
 	choices[0] = "RESUME";
-	choices[1] = "QUITE";
+	choices[1] = "QUIT";
 	int choice;
 	int highlight = 0;
 	int selected = 0;
@@ -332,51 +384,217 @@ void menu2_disp(void)
 	max_bonus = atoi(amount);
 }
 
+void head_del(Snake* snake)
+{
+    ptr_cell temp = (*(*snake)).next;
+    free(*snake);
+    *snake = temp;
+}
+
+void tail_add(Snake* snake, Pos pos) //fin
+{
+    ptr_cell temp = *snake;
+    while((*temp).next != NULL)
+    {
+        temp = (*temp).next;
+    }
+    (*temp).next = malloc(sizeof(Cell));
+    (*((*temp).next)).pos = pos;
+    (*((*temp).next)).next = NULL;
+	snake_end.pos = pos;
+	snake_end.next = NULL;
+}
+
+Cell get_tail(Snake* snake)
+{
+	ptr_cell temp = *snake;
+    while( (*temp).next != NULL )
+    {
+        temp = (*temp).next;
+    }
+	
+	return *temp;
+}
+
+void init_snake(Snake* snake)
+{
+	*snake = NULL;
+	Pos sk1 = {2,1,RIGHT};
+	Pos sk2 = {2,2,RIGHT};
+	Pos sk3 = {2,3,RIGHT};
+	head_add(snake, sk3);
+	head_add(snake, sk2);
+	head_add(snake, sk1);
+	snake_end = get_tail(snake);
+}
+
+
+void snake_move(Snake* snake, int dir)
+{
+
+	//Vérifier que la direction n'est pas opposée
+
+	int pos_x = snake_end.pos.x;
+	int pos_y = snake_end.pos.y;
+	int dir_l = snake_end.pos.dir;
+	Pos new_pos;
+
+	switch(dir) {
+		case UP:
+			if(dir_l == DOWN){
+				new_pos.x = pos_x+1;
+				new_pos.y = pos_y;
+				new_pos.dir = DOWN;
+				tail_add(snake, new_pos);
+				head_del(snake);
+				break;							
+			}
+			new_pos.x = pos_x-1;
+			new_pos.y = pos_y;
+			new_pos.dir = UP;
+			tail_add(snake, new_pos);
+			head_del(snake);
+			break;
+		case DOWN:
+			if(dir_l == UP){
+				new_pos.x = pos_x-1;
+				new_pos.y = pos_y;
+				new_pos.dir = UP;
+				tail_add(snake, new_pos);
+				head_del(snake);
+				break;
+			}
+			new_pos.x = pos_x+1;
+			new_pos.y = pos_y;
+			new_pos.dir = DOWN;
+			tail_add(snake, new_pos);
+			head_del(snake);	
+			break;
+		case RIGHT:
+			if(dir_l == LEFT){
+				new_pos.x = pos_x;
+				new_pos.y = pos_y-1;
+				new_pos.dir = LEFT;
+				tail_add(snake, new_pos);
+				head_del(snake);
+				break;
+			}
+			new_pos.x = pos_x;
+			new_pos.y = pos_y+1;
+			new_pos.dir = RIGHT;
+			tail_add(snake, new_pos);
+			head_del(snake);	
+			break;
+		case LEFT:
+			if(dir_l == RIGHT){
+				new_pos.x = pos_x;
+				new_pos.y = pos_y+1;
+				new_pos.dir = RIGHT;
+				tail_add(snake, new_pos);
+				head_del(snake);
+				break;
+			}
+			new_pos.x = pos_x;
+			new_pos.y = pos_y-1;
+			new_pos.dir = LEFT;
+			tail_add(snake, new_pos);
+			head_del(snake);
+			break;
+	}	
+
+}
+
+void snake_disp(Snake* snake)
+{
+
+    ptr_cell temp = *snake;
+    while(temp != NULL)
+    {
+		mvprintw(((*temp).pos.x), ((*temp).pos.y), snake_shape);
+        temp = (*temp).next;
+    }
+
+}
+
+
+int wall_check(void)
+{
+	if(snake_end.pos.x <= 1){return 1;} //En haut
+	if(snake_end.pos.x >= max_y){return 1;} //En bas
+	if(snake_end.pos.y <= 0){return 1;} //Gauche
+	if(snake_end.pos.y >= max_x){return 1;} //Droite
+	return 0;
+}
+
+int crash_check(Snake* snake)
+{
+	int pos_x, pos_y;
+    ptr_cell temp = *snake;
+	ptr_cell temp2;
+    while(temp != NULL)
+    {
+		pos_x = (*temp).pos.x;
+		pos_y = (*temp).pos.y;
+        temp2 = (*temp).next;
+		while(temp2 != NULL)
+		{
+			if((pos_x == (*temp2).pos.x) && (pos_y == (*temp2).pos.y)){return 1;}
+			temp2 = (*temp2).next; 
+		}
+		temp = (*temp).next;
+    }
+	return 0;	
+}
+
 /* Programme principale */
 
 
 int main(int argc, char *argv[]) 
 {
+	Snake snake;
 	int ch;
 	int speed;
-	int quit = 0;
 	srand(time(NULL));
 	initscr();
-	//noecho();
 	cbreak();
 	curs_set(FALSE);
 	keypad(stdscr, TRUE);
-
+	
 	menu_disp();
 	erase();
 	menu2_disp();	
 
+	init_snake(&snake);
 	init_bonus();
 
-	while(!quit) {
+	while(1) {
+
 		speed = 50-score*2;
 		if(speed < 0){speed = 0;}
 		timeout(speed);
+
 		getmaxyx(stdscr, max_y, max_x);
+
 		ch = getch();
-		if(ch == 27){quit = quit_disp();}
-		if(quit){break;}
+		if(ch == 27){if(quit_disp()){break;}} //Escape
+
 		set_dir(ch);
-		move_snake(dir);
-		
+				
 		clear();
 		title_draw();
 		score_disp();
 
 		bonus_create();
-
 		bonus_disp();
-		mvprintw(y, x, snake_shape);
 
-		bonus_check();
+		snake_move(&snake,dir);
+		snake_disp(&snake);
+
+		if(wall_check()){break;}
+		if(crash_check(&snake)){break;}
+		bonus_check(&snake);
 	
 		refresh();
-
 		usleep(DELAY);
 
 	}

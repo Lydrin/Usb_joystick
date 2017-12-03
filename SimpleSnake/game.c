@@ -119,6 +119,7 @@ void bonus_create(void)
 		rand_y = rand()%max_y-1;
 		
 		if(rand_y <= 1){rand_y = 2;}
+		if(rand_x == 0){rand_x = 1;}
 		
 		for(i=0; i<max_bonus; i++)
 		{

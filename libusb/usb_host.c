@@ -5,7 +5,6 @@
 
 libusb_device_handle * handle;
 
-
 int main(void)
 {
 
@@ -30,19 +29,20 @@ int main(void)
 	unclaim_active_config(my_device);
 
 
-/*
-
+	struct libusb_config_descriptor * config;
 	libusb_get_config_descriptor(my_device,0,&config);
-	num_config = config->bConfigurationValue;
+	uint8_t num_config = config->bConfigurationValue;
 	if(libusb_set_configuration(handle, num_config)){perror("libusb_set_configuration"); exit(-1);}
 
 
 	printf("\nTaille de la config : %d\n",config->bLength);
 	printf("Consommation : %d\n",config->MaxPower);
 	printf("\n##### Interfaces : %d #####\n\n",config->bNumInterfaces);
-	num_config = config->bConfigurationValue;
-	k = 0;
-	
+	//num_config = config->bConfigurationValue;
+	uint8_t i,k;
+	struct libusb_interface interf;
+	struct libusb_interface_descriptor interd;
+	struct libusb_endpoint_descriptor endp;
 
 
 	for(i=0; i<config->bNumInterfaces; i++)
@@ -77,7 +77,6 @@ int main(void)
 	//libusb_attach_kernel_driver(handle,0);
 	//libusb_attach_kernel_driver(handle,1);
 
-*/
 	libusb_close(handle);
 	libusb_exit(context);
 

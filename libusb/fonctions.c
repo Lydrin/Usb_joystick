@@ -34,12 +34,10 @@ void unclaim_active_config(libusb_device* device){
 	struct libusb_config_descriptor * config;
 	libusb_get_active_config_descriptor(device,&config);
 
-	uint8_t num_config = config->bConfigurationValue;
 	uint8_t i = 0;
 	
 	struct libusb_interface interf;
 	struct libusb_interface_descriptor interd;
-	struct libusb_endpoint_descriptor endp;	
 
 	
 	for(i=0; i<config->bNumInterfaces; i++)

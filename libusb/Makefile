@@ -1,19 +1,16 @@
-CC = gcc
-CFLAGS = -W -Wall -pedantic -g
-LDFLAGS = -lusb-1.0
-EXEC = USB
-SRC = $(wildcard *.c)
-OBJ = $(SRC:.c=.o)
+all: usb_host
 
-all: $(EXEC)
+usb_host: fonctions.o usb_host.o
+	gcc -o usb_host fonctions.o usb_host.o -lusb-1.0
 
-main: $(OBJ)
-	$(CC) -o $@ $^ $(LDFLAGS)
+fonctions.o: fonctions.c
+	gcc -o fonctions.o -c fonctions.c -Wall -pedantic -lusb-1.0
 
-%.o: %.c
-	$(CC) -o $@ -c $< $(CFLAGS)
+usb_host.o: usb_host.c fonctions.h
+	gcc -o usb_host.o -c usb_host.c -Wall -pedantic -lusb-1.0
 
 clean:
 	rm -rf *.o
-cleanall: clean
-	rm -rf $(EXEC)
+
+mrproper: clean
+	rm -rf usb_host

@@ -102,18 +102,8 @@ const USB_Descriptor_Device_t PROGMEM RelayBoard_DeviceDescriptor =
 
 			.InterfaceStrIndex      = NO_DESCRIPTOR
 		},
-    .HID_KeyboardHID =
-		{
-			.Header                 = {.Size = sizeof(USB_HID_Descriptor_HID_t), .Type = HID_DTYPE_HID},
 
-			.HIDSpec                = VERSION_BCD(1,1,1),
-			.CountryCode            = 0x00,
-			.TotalReportDescriptors = 1,
-			.HIDReportType          = HID_DTYPE_Report,
-			.HIDReportLength        = sizeof(KeyboardReport)
-		},
-
-	.HID_ReportINEndpoint =
+	.HID_ReportINEndpoint = // Boutons
 		{
 			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
 
@@ -123,7 +113,7 @@ const USB_Descriptor_Device_t PROGMEM RelayBoard_DeviceDescriptor =
 			.PollingIntervalMS      = 0x05
 		},
 
-	.HID_ReportOUTEndpoint =
+	.HID_ReportOUTEndpoint = // LED
 		{
 			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
 

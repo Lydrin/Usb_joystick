@@ -521,9 +521,9 @@ void snake_disp(Snake* snake)
 int wall_check(void)
 {
 	if(snake_end.pos.x <= 1){return 1;} //En haut
-	if(snake_end.pos.x >= max_y){return 1;} //En bas
+	if(snake_end.pos.x >= max_y-1){return 1;} //En bas
 	if(snake_end.pos.y <= 0){return 1;} //Gauche
-	if(snake_end.pos.y >= max_x){return 1;} //Droite
+	if(snake_end.pos.y >= max_x-1){return 1;} //Droite
 	return 0;
 }
 

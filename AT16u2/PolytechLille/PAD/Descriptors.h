@@ -51,7 +51,7 @@
 			USB_Descriptor_Configuration_Header_t Config;
 
 			// Relay Board Interface
-			USB_Descriptor_Interface_t            RelayBoardInterface;
+			USB_Descriptor_Interface_t            PADInterface;
 		} USB_Descriptor_Configuration_t;
 
 		/** Enum for the device interface descriptor IDs within the device. Each interface descriptor
@@ -60,7 +60,8 @@
 		 */
 		enum InterfaceDescriptors_t
 		{
-			INTERFACE_ID_RelayBoard = 0, /**< Relay board interface descriptor ID */
+			INTERFACE_ID_PAD_BOUTONS = 0,
+			INTERFACE_ID_PAD_LED = 1,
 		};
 
 		/** Enum for the device string descriptor IDs within the device. Each string descriptor should

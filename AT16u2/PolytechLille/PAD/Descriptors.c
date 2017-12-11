@@ -70,14 +70,13 @@ const USB_Descriptor_Device_t PROGMEM RelayBoard_DeviceDescriptor =
  *  and endpoints. The descriptor is read out by the USB host during the enumeration process when selecting
  *  a configuration so that the host may correctly communicate with the USB device.
  */
-const USB_Descriptor_Configuration_t PROGMEM RelayBoard_ConfigurationDescriptor =
-{
+
 	.Config =
 		{
 			.Header                 = {.Size = sizeof(USB_Descriptor_Configuration_Header_t), .Type = DTYPE_Configuration},
 
 			.TotalConfigurationSize = sizeof(USB_Descriptor_Configuration_t),
-			.TotalInterfaces        = 1,
+			.TotalInterfaces        = 2,
 
 			.ConfigurationNumber    = 1,
 			.ConfigurationStrIndex  = NO_DESCRIPTOR,
@@ -89,12 +88,13 @@ const USB_Descriptor_Configuration_t PROGMEM RelayBoard_ConfigurationDescriptor 
 
 	.RelayBoardInterface =
 		{
+
 			.Header                 = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
 
 			.InterfaceNumber        = INTERFACE_ID_RelayBoard,
 			.AlternateSetting       = 0,
 
-			.TotalEndpoints         = 0,
+			.TotalEndpoints         = 2,
 
 			.Class                  = USB_CSCP_VendorSpecificClass,
 			.SubClass               = 0x00,
@@ -102,6 +102,37 @@ const USB_Descriptor_Configuration_t PROGMEM RelayBoard_ConfigurationDescriptor 
 
 			.InterfaceStrIndex      = NO_DESCRIPTOR
 		},
+    .HID_KeyboardHID =
+		{
+			.Header                 = {.Size = sizeof(USB_HID_Descriptor_HID_t), .Type = HID_DTYPE_HID},
+
+			.HIDSpec                = VERSION_BCD(1,1,1),
+			.CountryCode            = 0x00,
+			.TotalReportDescriptors = 1,
+			.HIDReportType          = HID_DTYPE_Report,
+			.HIDReportLength        = sizeof(KeyboardReport)
+		},
+
+	.HID_ReportINEndpoint =
+		{
+			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
+
+			.EndpointAddress        = KEYBOARD_IN_EPADDR,
+			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+			.EndpointSize           = KEYBOARD_EPSIZE,
+			.PollingIntervalMS      = 0x05
+		},
+
+	.HID_ReportOUTEndpoint =
+		{
+			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
+
+			.EndpointAddress        = KEYBOARD_OUT_EPADDR,
+			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+			.EndpointSize           = KEYBOARD_EPSIZE,
+			.PollingIntervalMS      = 0x05
+		}
+
 };
 
 /** Language descriptor structure. This descriptor, located in FLASH memory, is returned when the host requests

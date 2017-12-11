@@ -35,7 +35,7 @@
  *  the project and is responsible for the initial application hardware configuration.
  */
 
-#include "RelayBoard.h"
+#include "pad.h"
 
 
 /** Main program entry point. This routine contains the overall program flow, including initial

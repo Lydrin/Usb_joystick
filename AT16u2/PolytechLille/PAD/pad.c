@@ -1,75 +1,66 @@
 #include "pad.h"
 #include <LUFA/Drivers/Peripheral/Serial.h>
 
+#define USART_BAUDRATE 9600
+#define USART_DOUBLE_SPEED false
+
 /** Main program entry point. This routine contains the overall program flow, including initial
  *  setup of all components and the main program loop.
  */
+
+void ProcessLEDReport(uint8_t data)
+{
+	// Envoyer en série 0 ou 1 selon la data
+	Serial_SendByte(data)
+}
  
 void SendNextReport(void)
 {
-	/* Select the IN Report Endpoint */
-	Endpoint_SelectEndpoint(PAD_IN_EPADDR);
-
-	if (sendReport)
+	// Fonction pour lire sur le port série et stocker la valeur (pointeur)
+	
+	uint8_t data;
+	if(Serial_IsCharReceived())
 	{
-	/* Wait until the host is ready to accept another packet */
-		while (!Endpoint_IsINReady()) {}
+		data = Serial_ReceiveByte(); //
+	}
 
-	/* Write IN Report Data */
-		Endpoint_Write_Stream_LE(report, reportLen, NULL);
+	/* Check if the idle period is set and has elapsed */
 
-		sendReport = 0;
+	/* Select the Keyboard Report Endpoint */
+	Endpoint_SelectEndpoint(PAD_ReportINEndpoint);
 
-	/* Finalize the stream transfer to send the last packet */
+	/* Check if Keyboard Endpoint Ready for Read/Write and if we should send a new report */
+	if (Endpoint_IsReadWriteAllowed())
+	{
+		/* Write Keyboard Report Data */
+		Endpoint_Write_Stream_LE(&data, sizeof(uint8_t), NULL);
+
+		/* Finalize the stream transfer to send the last packet */
 		Endpoint_ClearIN();
 	}
 }
 
-/** Reads the next OUT report from the host from the OUT endpoint, if one has been sent. */
+/** Reads the next LED status report from the host from the LED data endpoint, if one has been sent. */
 void ReceiveNextReport(void)
 {
-	static struct
-	{
-		struct
-		{
-			unsigned char type;
-			unsigned char length;
-		} header;
-		unsigned char buffer[INTERRUPT_EPSIZE];
-	} packet = { .header.type = BYTE_OUT_REPORT };
+	/* Select the Keyboard LED Report Endpoint */
+	Endpoint_SelectEndpoint(PAD_ReportOUTEndpoint);
 
-	uint16_t length = 0;
-
-	/* Select the OUT Report Endpoint */
-	Endpoint_SelectEndpoint(PAD_OUT_EPADDR);
-
-	/* Check if OUT Endpoint contains a packet */
+	/* Check if Keyboard LED Endpoint contains a packet */
 	if (Endpoint_IsOUTReceived())
 	{
-	/* Check to see if the packet contains data */
+		/* Check to see if the packet contains data */
 		if (Endpoint_IsReadWriteAllowed())
 		{
-	/* Read OUT Report Data */
-			uint8_t ErrorCode = Endpoint_Read_Stream_LE(packet.buffer, sizeof(packet.buffer), &length);
-			if(ErrorCode == ENDPOINT_RWSTREAM_NoError)
-			{
-				length = sizeof(packet.buffer);
-			}
-		}	
+			/* Read in the LED report from the host */
+			uint8_t LEDReport = Endpoint_Read_8();
 
-	/* Handshake the OUT Endpoint - clear endpoint and ready for next report */
-		Endpoint_ClearOUT();
-
-		if(length)
-		{
-			packet.header.length = length & 0xFF;
-			Serial_SendData(&packet, sizeof(packet.header) + packet.header.length);
-
-			if(!spoof_initialized && packet.buffer[0] == 0x06 && packet.buffer[1] == 0x20)
-			{
-				spoof_initialized = 1;
-			}
+			/* Process the read LED report from the host */
+			ProcessLEDReport(LEDReport);
 		}
+
+		/* Handshake the OUT Endpoint - clear endpoint and ready for next report */
+		Endpoint_ClearOUT();
 	}
 }
 
@@ -89,7 +80,7 @@ void PAD_Task(void)
 int main(void)
 {
 	SetupHardware();
-
+	Serial_Init(USART_BAUDRATE, USART_DOUBLE_SPEED);
 	GlobalInterruptEnable();
 
 	for (;;)
@@ -113,8 +104,9 @@ void SetupHardware(void)
 	USB_Init();
 }
 
+
 /** Event handler for the library USB Control Request reception event. */
-void EVENT_USB_Device_ControlRequest(void)
+void EVENT_USB_Device_ControlRequest(void) // A comprendre
 {
 
 	if(((USB_ControlRequest.bmRequestType & CONTROL_REQTYPE_TYPE) == REQTYPE_CLASS)
@@ -123,21 +115,12 @@ void EVENT_USB_Device_ControlRequest(void)
 	
 		if ((USB_ControlRequest.bmRequestType & CONTROL_REQDIR_DIRECTION) == REQDIR_HOSTTODEVICE)
 		{
-		
-			if(USB_ControlRequest.bRequest == '1')
-			{
-				// Send serial je pense
-			}
 			
-			if(USB_ControlRequest.bRequest == '0')
-			{
-				// Send serial
-			}			
 			
 		}
 		else
 		{
-			// Read Serial et envoie
+			
 		}
 	
 	}		

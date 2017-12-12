@@ -4,6 +4,7 @@
 #include "fonctions.h"
 
 libusb_device_handle * handle;
+struct libusb_endpoint_descriptor endp_list[10];
 
 int main(void)
 {
@@ -43,7 +44,9 @@ int main(void)
 	struct libusb_interface interf;
 	struct libusb_interface_descriptor interd;
 	struct libusb_endpoint_descriptor endp;
-
+	uint8_t endpoint_type;
+	uint8_t cpt = 0;
+	uint8_t done = 0;
 
 	for(i=0; i<config->bNumInterfaces; i++)
 	{
@@ -55,7 +58,30 @@ int main(void)
 		for(k=0; k<interd.bNumEndpoints; k++)
 		{
 			endp = (interd.endpoint)[k];
-			printf("\t\t\t- Attributes : %d\n",endp.bmAttributes);
+			printf("\t\t\t- Attributes : %x\n",endp.bmAttributes);
+			endpoint_type = endp.bmAttributes & 0x03;
+			switch(endpoint_type)
+			{
+				case 0:
+					printf("\t\t\t-Type : Control\n");
+					break;
+				case 1:
+					printf("\t\t\t-Type Isochronous\n");
+					break;
+				case 2:
+					printf("\t\t\t-Type : Bulk\n");
+					break;
+				case 3:
+					printf("\t\t\t-Type : Interrupt\n");
+					endp_list[cpt] = endp;
+					cpt++;
+					done = 1;
+					break;	
+			}
+			
+			if(done == 1){break;}
+			
+			
 		}		
 		
 		

@@ -91,7 +91,7 @@ const USB_Descriptor_Device_t PROGMEM PAD_DeviceDescriptor =
 
 			.Header                 = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
 
-			.InterfaceNumber        = INTERFACE_ID_PAD_BOUTONS,
+			.InterfaceNumber        = 0x00,
 			.AlternateSetting       = 0,
 
 			.TotalEndpoints         = 1,
@@ -103,13 +103,13 @@ const USB_Descriptor_Device_t PROGMEM PAD_DeviceDescriptor =
 			.InterfaceStrIndex      = NO_DESCRIPTOR
 		},
 
-	.HID_ReportINEndpoint = // Boutons
+	.PAD_ReportINEndpoint = // Boutons
 		{
 			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
 
-			.EndpointAddress        = KEYBOARD_IN_EPADDR,
+			.EndpointAddress        = PAD_IN_EPADDR,
 			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
-			.EndpointSize           = KEYBOARD_EPSIZE,
+			.EndpointSize           = INTERRUPT_EPSIZE,
 			.PollingIntervalMS      = 0x05
 		},
 
@@ -118,7 +118,7 @@ const USB_Descriptor_Device_t PROGMEM PAD_DeviceDescriptor =
 
 			.Header                 = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
 
-			.InterfaceNumber        = INTERFACE_ID_PAD_LED,
+			.InterfaceNumber        = 0x01,
 			.AlternateSetting       = 0,
 
 			.TotalEndpoints         = 1,
@@ -130,13 +130,13 @@ const USB_Descriptor_Device_t PROGMEM PAD_DeviceDescriptor =
 			.InterfaceStrIndex      = NO_DESCRIPTOR
 		},
 
-	.HID_ReportOUTEndpoint = // LED
+	.PAD_ReportOUTEndpoint = // LED
 		{
 			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
 
-			.EndpointAddress        = KEYBOARD_OUT_EPADDR,
+			.EndpointAddress        = PAD_OUT_EPADDR,
 			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
-			.EndpointSize           = KEYBOARD_EPSIZE,
+			.EndpointSize           = INTERRUPT_EPSIZE,
 			.PollingIntervalMS      = 0x05
 		}
 

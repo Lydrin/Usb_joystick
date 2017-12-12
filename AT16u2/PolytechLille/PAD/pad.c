@@ -1,9 +1,91 @@
 #include "pad.h"
-
+#include <LUFA/Drivers/Peripheral/Serial.h>
 
 /** Main program entry point. This routine contains the overall program flow, including initial
  *  setup of all components and the main program loop.
  */
+ 
+void SendNextReport(void)
+{
+	/* Select the IN Report Endpoint */
+	Endpoint_SelectEndpoint(PAD_IN_EPADDR);
+
+	if (sendReport)
+	{
+	/* Wait until the host is ready to accept another packet */
+		while (!Endpoint_IsINReady()) {}
+
+	/* Write IN Report Data */
+		Endpoint_Write_Stream_LE(report, reportLen, NULL);
+
+		sendReport = 0;
+
+	/* Finalize the stream transfer to send the last packet */
+		Endpoint_ClearIN();
+	}
+}
+
+/** Reads the next OUT report from the host from the OUT endpoint, if one has been sent. */
+void ReceiveNextReport(void)
+{
+	static struct
+	{
+		struct
+		{
+			unsigned char type;
+			unsigned char length;
+		} header;
+		unsigned char buffer[INTERRUPT_EPSIZE];
+	} packet = { .header.type = BYTE_OUT_REPORT };
+
+	uint16_t length = 0;
+
+	/* Select the OUT Report Endpoint */
+	Endpoint_SelectEndpoint(PAD_OUT_EPADDR);
+
+	/* Check if OUT Endpoint contains a packet */
+	if (Endpoint_IsOUTReceived())
+	{
+	/* Check to see if the packet contains data */
+		if (Endpoint_IsReadWriteAllowed())
+		{
+	/* Read OUT Report Data */
+			uint8_t ErrorCode = Endpoint_Read_Stream_LE(packet.buffer, sizeof(packet.buffer), &length);
+			if(ErrorCode == ENDPOINT_RWSTREAM_NoError)
+			{
+				length = sizeof(packet.buffer);
+			}
+		}	
+
+	/* Handshake the OUT Endpoint - clear endpoint and ready for next report */
+		Endpoint_ClearOUT();
+
+		if(length)
+		{
+			packet.header.length = length & 0xFF;
+			Serial_SendData(&packet, sizeof(packet.header) + packet.header.length);
+
+			if(!spoof_initialized && packet.buffer[0] == 0x06 && packet.buffer[1] == 0x20)
+			{
+				spoof_initialized = 1;
+			}
+		}
+	}
+}
+
+void PAD_Task(void)
+{
+  /* Device must be connected and configured for the task to run */
+  if (USB_DeviceState != DEVICE_STATE_Configured)
+    return;
+
+  /* Send the next keypress report to the host */
+  SendNextReport();
+
+  /* Process the LED report sent from the host */
+  ReceiveNextReport();
+}
+ 
 int main(void)
 {
 	SetupHardware();
@@ -11,6 +93,7 @@ int main(void)
 	GlobalInterruptEnable();
 
 	for (;;)
+	  PAD_Task();
 	  USB_USBTask();
 }
 
@@ -28,84 +111,36 @@ void SetupHardware(void)
 
 	/* Hardware Initialization */
 	USB_Init();
-
-	/* Initialize Relays */
-	DDRC  |=  ALL_RELAYS;
-	PORTC &= ~ALL_RELAYS;
 }
 
 /** Event handler for the library USB Control Request reception event. */
 void EVENT_USB_Device_ControlRequest(void)
 {
-    const uint8_t SerialNumber[5] = { 0, 0, 0, 0, 1 };
-	uint8_t ControlData[2]        = { 0, 0 };
-	
-	
-/*
-    switch (USB_ControlRequest.bRequest)
+
+	if(((USB_ControlRequest.bmRequestType & CONTROL_REQTYPE_TYPE) == REQTYPE_CLASS)
+		&& ((USB_ControlRequest.bmRequestType & CONTROL_REQTYPE_RECIPIENT) == REQREC_DEVICE))
 	{
-		case 0x09:
-			if (USB_ControlRequest.bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+	
+		if ((USB_ControlRequest.bmRequestType & CONTROL_REQDIR_DIRECTION) == REQDIR_HOSTTODEVICE)
+		{
+		
+			if(USB_ControlRequest.bRequest == '1')
 			{
-				LEDs_ToggleLEDs(LEDS_LED1);
-
-				Endpoint_ClearSETUP();
-
-				Endpoint_Read_Control_Stream_LE(ControlData, sizeof(ControlData));
-				Endpoint_ClearIN();
-
-				switch (USB_ControlRequest.wValue)
-				{
-					case 0x303:
-						if (ControlData[1]) PORTC &= ~RELAY1; else PORTC |= RELAY1;
-						break;
-					case 0x306:
-						if (ControlData[1]) PORTC &= ~RELAY2; else PORTC |= RELAY2;
-						break;
-					case 0x309:
-						if (ControlData[1]) PORTC &= ~RELAY3; else PORTC |= RELAY3;
-						break;
-					case 0x30c:
-						if (ControlData[1]) PORTC &= ~RELAY4; else PORTC |= RELAY4;
-						break;
-				}
+				// Send serial je pense
 			}
-
-			break;
-		case 0x01:
-			if (USB_ControlRequest.bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
+			
+			if(USB_ControlRequest.bRequest == '0')
 			{
-				LEDs_ToggleLEDs(LEDS_LED1);
+				// Send serial
+			}			
+			
+		}
+		else
+		{
+			// Read Serial et envoie
+		}
+	
+	}		
 
-				Endpoint_ClearSETUP();
-
-				switch (USB_ControlRequest.wValue)
-				{
-					case 0x301:
-						Endpoint_Write_Control_Stream_LE(SerialNumber, sizeof(SerialNumber));
-						break;
-					case 0x303:
-						ControlData[1] = (PORTC & RELAY1) ? 2 : 3;
-						break;
-					case 0x306:
-						ControlData[1] = (PORTC & RELAY2) ? 2 : 3;
-						break;
-					case 0x309:
-						ControlData[1] = (PORTC & RELAY3) ? 2 : 3;
-						break;
-					case 0x30c:
-						ControlData[1] = (PORTC & RELAY4) ? 2 : 3;
-						break;
-				}
-
-				if (ControlData[1])
-				  Endpoint_Write_Control_Stream_LE(ControlData, sizeof(ControlData));
-
-				Endpoint_ClearOUT();
-			}
-
-			break;
-	}
-	*/
 }
 

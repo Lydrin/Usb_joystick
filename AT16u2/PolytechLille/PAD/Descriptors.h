@@ -50,19 +50,17 @@
 		{
 			USB_Descriptor_Configuration_Header_t Config;
 
-			// Relay Board Interface
-			USB_Descriptor_Interface_t            PADInterface;
+			USB_Descriptor_Interface_t              BoutonsInterface;
+			USB_Descriptor_Endpoint_t				PAD_ReportINEndpoint;
+			USB_Descriptor_Interface_t              LEDInterface;
+			USB_Descriptor_Endpoint_t				PAD_ReportOUTEndpoint;
+			
 		} USB_Descriptor_Configuration_t;
 
 		/** Enum for the device interface descriptor IDs within the device. Each interface descriptor
 		 *  should have a unique ID index associated with it, which can be used to refer to the
 		 *  interface from other descriptors.
 		 */
-		enum InterfaceDescriptors_t
-		{
-			INTERFACE_ID_PAD_BOUTONS = 0,
-			INTERFACE_ID_PAD_LED = 1,
-		};
 
 		/** Enum for the device string descriptor IDs within the device. Each string descriptor should
 		 *  have a unique ID index associated with it, which can be used to refer to the string from
@@ -76,6 +74,10 @@
 			STRING_ID_Serial       = 3, /**< Serial number string ID */
 		};
 
+		#define INTERRUPT_EPSIZE 64
+   		#define PAD_OUT_EPADDR (ENDPOINT_DIR_OUT | 2)
+		#define PAD_IN_EPADDR (ENDPOINT_DIR_IN | 1)
+		
 	/* Function Prototypes: */
 		uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
 		                                    const uint16_t wIndex,

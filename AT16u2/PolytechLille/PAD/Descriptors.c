@@ -70,7 +70,9 @@ const USB_Descriptor_Device_t PROGMEM PAD_DeviceDescriptor =
  *  and endpoints. The descriptor is read out by the USB host during the enumeration process when selecting
  *  a configuration so that the host may correctly communicate with the USB device.
  */
-
+ 
+const USB_Descriptor_Configuration_t PROGMEM PAD_ConfigurationDescriptor =
+{
 	.Config =
 		{
 			.Header                 = {.Size = sizeof(USB_Descriptor_Configuration_Header_t), .Type = DTYPE_Configuration},
@@ -88,7 +90,6 @@ const USB_Descriptor_Device_t PROGMEM PAD_DeviceDescriptor =
 
 	.BoutonsInterface =
 		{
-
 			.Header                 = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
 
 			.InterfaceNumber        = 0x00,
@@ -115,7 +116,6 @@ const USB_Descriptor_Device_t PROGMEM PAD_DeviceDescriptor =
 
 	.LEDInterface =
 		{
-
 			.Header                 = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
 
 			.InterfaceNumber        = 0x01,
@@ -157,7 +157,7 @@ const USB_Descriptor_String_t PROGMEM PAD_LanguageString =
  *  form, and is read out upon request by the host when the appropriate string ID is requested, listed in the Device
  *  Descriptor.
  */
-const USB_Descriptor_String_t PROGMEM PAD_ManufacturerString = USB_STRING_DESCRIPTOR(L"SISPM");
+const USB_Descriptor_String_t PROGMEM PAD_ManufacturerString = USB_STRING_DESCRIPTOR(L"PolytechLille");
 
 /** Product descriptor string. This is a Unicode string containing the product's details in human readable form,
  *  and is read out upon request by the host when the appropriate string ID is requested, listed in the Device

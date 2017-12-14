@@ -8,10 +8,21 @@
  *  setup of all components and the main program loop.
  */
 
+void EVENT_USB_Device_ConfigurationChanged(void)
+{
+
+	Endpoint_ConfigureEndpoint(PAD_IN_EPADDR, EP_TYPE_INTERRUPT, INTERRUPT_EPSIZE, 1);
+	Endpoint_ConfigureEndpoint(PAD_OUT_EPADDR, EP_TYPE_INTERRUPT, INTERRUPT_EPSIZE, 1);
+
+	/* Turn on Start-of-Frame events for tracking HID report period expiry */
+	USB_Device_EnableSOFEvents();
+
+}
+
 void ProcessLEDReport(uint8_t data)
 {
 	// Envoyer en série 0 ou 1 selon la data
-	Serial_SendByte(data)
+	Serial_SendByte(data);
 }
  
 void SendNextReport(void)
@@ -27,7 +38,7 @@ void SendNextReport(void)
 	/* Check if the idle period is set and has elapsed */
 
 	/* Select the Keyboard Report Endpoint */
-	Endpoint_SelectEndpoint(PAD_ReportINEndpoint);
+	Endpoint_SelectEndpoint(PAD_IN_EPADDR);
 
 	/* Check if Keyboard Endpoint Ready for Read/Write and if we should send a new report */
 	if (Endpoint_IsReadWriteAllowed())
@@ -44,7 +55,7 @@ void SendNextReport(void)
 void ReceiveNextReport(void)
 {
 	/* Select the Keyboard LED Report Endpoint */
-	Endpoint_SelectEndpoint(PAD_ReportOUTEndpoint);
+	Endpoint_SelectEndpoint(PAD_OUT_EPADDR);
 
 	/* Check if Keyboard LED Endpoint contains a packet */
 	if (Endpoint_IsOUTReceived())
@@ -66,15 +77,15 @@ void ReceiveNextReport(void)
 
 void PAD_Task(void)
 {
-  /* Device must be connected and configured for the task to run */
-  if (USB_DeviceState != DEVICE_STATE_Configured)
-    return;
+	/* Device must be connected and configured for the task to run */
+	if (USB_DeviceState != DEVICE_STATE_Configured)
+		return;
 
-  /* Send the next keypress report to the host */
-  SendNextReport();
+	/* Send the next keypress report to the host */
+	SendNextReport();
 
-  /* Process the LED report sent from the host */
-  ReceiveNextReport();
+	/* Process the LED report sent from the host */
+	ReceiveNextReport();
 }
  
 int main(void)
@@ -105,7 +116,7 @@ void SetupHardware(void)
 }
 
 
-/** Event handler for the library USB Control Request reception event. */
+/*
 void EVENT_USB_Device_ControlRequest(void) // A comprendre
 {
 
@@ -126,4 +137,5 @@ void EVENT_USB_Device_ControlRequest(void) // A comprendre
 	}		
 
 }
+*/
 

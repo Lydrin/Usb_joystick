@@ -74,7 +74,7 @@
 			STRING_ID_Serial       = 3, /**< Serial number string ID */
 		};
 
-		#define INTERRUPT_EPSIZE 64
+		#define INTERRUPT_EPSIZE 8
    		#define PAD_OUT_EPADDR (ENDPOINT_DIR_OUT | 2)
 		#define PAD_IN_EPADDR (ENDPOINT_DIR_IN | 1)
 		

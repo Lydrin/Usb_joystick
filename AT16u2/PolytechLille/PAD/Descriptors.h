@@ -48,8 +48,7 @@
 		 */
 		typedef struct
 		{
-			USB_Descriptor_Configuration_Header_t Config;
-
+			USB_Descriptor_Configuration_Header_t   Config;
 			USB_Descriptor_Interface_t              BoutonsInterface;
 			USB_Descriptor_Endpoint_t				PAD_ReportINEndpoint;
 			USB_Descriptor_Interface_t              LEDInterface;
@@ -75,8 +74,8 @@
 		};
 
 		#define INTERRUPT_EPSIZE 8
-   		#define PAD_OUT_EPADDR (ENDPOINT_DIR_OUT | 2)
 		#define PAD_IN_EPADDR (ENDPOINT_DIR_IN | 1)
+   		#define PAD_OUT_EPADDR (ENDPOINT_DIR_OUT | 2)
 		
 	/* Function Prototypes: */
 		uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,

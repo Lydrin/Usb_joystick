@@ -54,8 +54,8 @@ const USB_Descriptor_Device_t PROGMEM PAD_DeviceDescriptor =
 
 	.Endpoint0Size          = FIXED_CONTROL_ENDPOINT_SIZE,
 
-	.VendorID               = 0x04B4,
-	.ProductID              = 0xFD11,
+	.VendorID               = 0xABCD,
+	.ProductID              = 0x1234,
 	.ReleaseNumber          = VERSION_BCD(2,0,0),
 
 	.ManufacturerStrIndex   = STRING_ID_Manufacturer,
@@ -146,36 +146,20 @@ const USB_Descriptor_Configuration_t PROGMEM PAD_ConfigurationDescriptor =
  *  the string descriptor with index 0 (the first index). It is actually an array of 16-bit integers, which indicate
  *  via the language ID table available at USB.org what languages the device supports for its string descriptors.
  */
-const USB_Descriptor_String_t PROGMEM PAD_LanguageString =
-{
-	.Header                 = {.Size = USB_STRING_LEN(1), .Type = DTYPE_String},
-
-	.UnicodeString          = {LANGUAGE_ID_ENG}
-};
+const USB_Descriptor_String_t PROGMEM LanguageString = USB_STRING_DESCRIPTOR_ARRAY(LANGUAGE_ID_ENG);
 
 /** Manufacturer descriptor string. This is a Unicode string containing the manufacturer's details in human readable
  *  form, and is read out upon request by the host when the appropriate string ID is requested, listed in the Device
  *  Descriptor.
  */
-const USB_Descriptor_String_t PROGMEM PAD_ManufacturerString = USB_STRING_DESCRIPTOR(L"PolytechLille");
+const USB_Descriptor_String_t PROGMEM ManufacturerString = USB_STRING_DESCRIPTOR(L"Polytech Lille");
 
 /** Product descriptor string. This is a Unicode string containing the product's details in human readable form,
  *  and is read out upon request by the host when the appropriate string ID is requested, listed in the Device
  *  Descriptor.
  */
-const USB_Descriptor_String_t PROGMEM PAD_ProductString = USB_STRING_DESCRIPTOR(L"PAD");
+const USB_Descriptor_String_t PROGMEM ProductString = USB_STRING_DESCRIPTOR(L"LUFA PAD");
 
-/** Serial number string. This is a Unicode string containing the device's unique serial number, expressed as a
- *  series of uppercase hexadecimal digits.
- */
-const USB_Descriptor_String_t PROGMEM PAD_SerialString = USB_STRING_DESCRIPTOR(L"00001");
-
-/** This function is called by the library when in device mode, and must be overridden (see library "USB Descriptors"
- *  documentation) by the application code so that the address and size of a requested descriptor can be given
- *  to the USB library. When the device receives a Get Descriptor request on the control endpoint, this function
- *  is called so that the descriptor details can be passed back and the appropriate descriptor sent back to the
- *  USB host.
- */
 uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
                                     const uint16_t wIndex,
                                     const void** const DescriptorAddress)
@@ -200,20 +184,16 @@ uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
 			switch (DescriptorNumber)
 			{
 				case STRING_ID_Language:
-					Address = &PAD_LanguageString;
-					Size    = pgm_read_byte(&PAD_LanguageString.Header.Size);
+					Address = &LanguageString;
+					Size    = pgm_read_byte(&LanguageString.Header.Size);
 					break;
 				case STRING_ID_Manufacturer:
-					Address = &PAD_ManufacturerString;
-					Size    = pgm_read_byte(&PAD_ManufacturerString.Header.Size);
+					Address = &ManufacturerString;
+					Size    = pgm_read_byte(&ManufacturerString.Header.Size);
 					break;
 				case STRING_ID_Product:
-					Address = &PAD_ProductString;
-					Size    = pgm_read_byte(&PAD_ProductString.Header.Size);
-					break;
-				case STRING_ID_Serial:
-					Address = &PAD_SerialString;
-					Size    = pgm_read_byte(&PAD_SerialString.Header.Size);
+					Address = &ProductString;
+					Size    = pgm_read_byte(&ProductString.Header.Size);
 					break;
 			}
 

@@ -26,21 +26,21 @@
 
 #define BAUDRATE 103
 
-volatile uint8_t ancien_portd = 0xFF; 
 volatile int state = -1;
-volatile int state_led = -1;
 
-void init_boutons(void){    
-   DDRD &= ~((1 << DDD2) | (1 << DDD3) | (1 << DDD4) | (1 << DDD5) | (1 << DDD6));
-   //PD3,4,5,6 sont maintenant des entrées
-    PORTD |= ((1 << PORTD2) | (1 << PORTD3) | (1 << PORTD4) | (1 << PORTD5) | (1 << PORTD6));
-   //On active le PULL-UP sur les entrées
-   PCICR |= (1 << PCIE2);
-PCMSK2 |= ((1 << PCINT18) | (1 << PCINT19) | (1 << PCINT20) | (1 << PCINT21) | (1 << PCINT22));
-   sei();
+void init_boutons(void)
+{    
+	DDRD &= ~((1 << DDD2) | (1 << DDD3) | (1 << DDD4) | (1 << DDD5) | (1 << DDD6));
+	//PD3,4,5,6 sont maintenant des entrées
+	PORTD |= ((1 << PORTD2) | (1 << PORTD3) | (1 << PORTD4) | (1 << PORTD5) | (1 << PORTD6));
+	//On active le PULL-UP sur les entrées
+	PCICR |= (1 << PCIE2);
+	PCMSK2 |= ((1 << PCINT18) | (1 << PCINT19) | (1 << PCINT20) | (1 << PCINT21) | (1 << PCINT22));
+	sei();
 }
 
-void init_serial(void){
+void init_serial(void)
+{
     uint8_t baudrate = BAUDRATE;
     UBRR0H = 0;
     UBRR0L = baudrate;
@@ -50,7 +50,6 @@ void init_serial(void){
     UCSR0C = ((1 << UCSZ01) | (1 << UCSZ00));
 
     UCSR0A &= ~(1 << U2X0);
-    //UCSR0C = 0x06;
 }
 
 void send_serial(unsigned char c)
@@ -63,21 +62,24 @@ void output_init(void){
 	DDRB |= 0x20;
 }
 
-ISR (USART_RX_vect){
-	if(UDR0 == 49){//Allumage de la LED
+ISR (USART_RX_vect)
+{
+	if(UDR0 == 49){ //Allumage de la LED
 		PORTB |= 0x20;
 	}
-	if(UDR0 == 48){//Extinction de la LED
+	if(UDR0 == 48){ //Extinction de la LED
 		PORTB &= 0xDF;
 	}
 }
 
-ISR (PCINT2_vect){
+ISR (PCINT2_vect)
+{
     state = ((~(PIND) & 0x7C)>>2);
 }
 
     
-int main(void){
+int main(void)
+{
     init_serial();
     init_boutons();
     output_init();

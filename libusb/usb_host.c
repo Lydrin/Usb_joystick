@@ -98,7 +98,7 @@ int main(void)
 	uint8_t endpoint_in=endp_list[0].bEndpointAddress;    /* ID of endpoint (bit 8 is 1) */
 	unsigned char data[8];    /* data to send or to receive */
 	int size=8;           /* size to send or maximum size to receive */
-	int timeout=200;        /* timeout in ms */
+	int timeout=1000;        /* timeout in ms */
 
 	/* OUT interrupt, from host to device */
 	/*int bytes_out;
@@ -108,12 +108,13 @@ int main(void)
 	/* IN interrupt, host polling device */
 	while(1){
 		int bytes_in;
-		int status=libusb_interrupt_transfer(handle,endpoint_in,data,size,&bytes_in,timeout);
-		if(status!=0){ perror("libusb_interrupt_transfer"); exit(-1); }
+		libusb_interrupt_transfer(handle,endpoint_in,data,size,&bytes_in,timeout);
+		//if(status!=0){ perror("libusb_interrupt_transfer"); exit(-1); }
 		for(int i = 0;i<bytes_in;i++){
-			printf("Received : %d : %x\n",i,data[i]);
+			printf("Received : %d\n",data[i]);
 		}
 	}
+	
 /*
 	for(i=0; i<config->bNumInterfaces; i++)
 	{		

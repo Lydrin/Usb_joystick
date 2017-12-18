@@ -4,6 +4,15 @@
 #define USART_BAUDRATE 9600
 #define USART_DOUBLE_SPEED 0
 
+uint8_t data_send;
+uint8_t state_send = 0;
+
+ISR(USART1_RX_vect)
+{
+	data_send = UDR1;
+	state_send = 1;
+}
+
 
 void EVENT_USB_Device_ConfigurationChanged(void)
 {
@@ -26,20 +35,26 @@ void EVENT_USB_Device_Disconnect(void)
 
 void SendNextReport(void)
 {
-	uint8_t data;
-	data = 0xBB;
+	/*
+	int data;
 	if(Serial_IsCharReceived())
 	{
-		data = 0xCC;//Serial_ReceiveByte();
+		data = Serial_ReceiveByte();
 	}
-
-	Endpoint_SelectEndpoint(PAD_IN_EPADDR);
-
-	if (Endpoint_IsReadWriteAllowed())
+	*/
+	if(state_send)
 	{
-		Endpoint_Write_Stream_LE(&data, sizeof(uint8_t), NULL);
-		Endpoint_ClearIN();
-	}
+		Endpoint_SelectEndpoint(PAD_IN_EPADDR);
+
+		if (Endpoint_IsReadWriteAllowed())
+		{
+			Endpoint_Write_Stream_LE(&data_send, sizeof(uint8_t), NULL);
+			Endpoint_ClearIN();
+		}	
+		
+		state_send = 0;
+	}	
+		
 }
 
 void ReceiveNextReport(void)
@@ -81,5 +96,6 @@ int main(void)
 void SetupHardware(void)
 {
 	Serial_Init(USART_BAUDRATE, USART_DOUBLE_SPEED);
+	UCSR1B |= (1 << RXCIE1); // Enable the USART Receive Complete interrupt (USART_RXC)
 	USB_Init();
 }

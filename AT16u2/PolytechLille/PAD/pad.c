@@ -14,34 +14,8 @@ ISR(USART1_RX_vect)
 }
 
 
-void EVENT_USB_Device_ConfigurationChanged(void)
-{
-	Endpoint_ConfigureEndpoint(PAD_IN_EPADDR, EP_TYPE_INTERRUPT, INTERRUPT_EPSIZE, 1);
-	Endpoint_ConfigureEndpoint(PAD_OUT_EPADDR, EP_TYPE_INTERRUPT, INTERRUPT_EPSIZE, 1);
-	USB_Device_EnableSOFEvents();
-}
-
-/*
-void EVENT_USB_Device_Connect(void)
-{
-
-}
-
-void EVENT_USB_Device_Disconnect(void)
-{
-
-}
-*/
-
 void SendNextReport(void)
 {
-	/*
-	int data;
-	if(Serial_IsCharReceived())
-	{
-		data = Serial_ReceiveByte();
-	}
-	*/
 	if(state_send)
 	{
 		Endpoint_SelectEndpoint(PAD_IN_EPADDR);
@@ -55,6 +29,13 @@ void SendNextReport(void)
 		state_send = 0;
 	}	
 		
+}
+
+void EVENT_USB_Device_ConfigurationChanged(void)
+{
+	Endpoint_ConfigureEndpoint(PAD_IN_EPADDR, EP_TYPE_INTERRUPT, INTERRUPT_EPSIZE, 1);
+	Endpoint_ConfigureEndpoint(PAD_OUT_EPADDR, EP_TYPE_INTERRUPT, INTERRUPT_EPSIZE, 1);
+	USB_Device_EnableSOFEvents();
 }
 
 void ReceiveNextReport(void)

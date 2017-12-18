@@ -4,20 +4,22 @@
 #include "fonctions.h"
 
 
-int get_usb_device(libusb_context* context, struct libusb_device_descriptor* desc){ 
-//Retourne le pointeur vers le device identifié par ID_PRODUCT
+int get_usb_device(libusb_context* context){ 
+//"Retourne" le pointeur vers le device identifié par ID_PRODUCT
+	struct libusb_device_descriptor desc;
 	libusb_device **list;
 	ssize_t count = libusb_get_device_list(context,&list);
-	if(count<0){
+	if(count<0)
+	{
 		perror("libusb_get_device_list");
 		exit(-1);
 	}
 	ssize_t i = 0;
 	for(i=0;i<count;i++){
 		libusb_device* device = list[i];
-		int status = libusb_get_device_descriptor(device,desc);
+		int status = libusb_get_device_descriptor(device,&desc);
 		if(status!=0) continue;
-		if(desc->idProduct == ID_PRODUCT)
+		if(desc.idProduct == ID_PRODUCT)
 		{
 			if(libusb_open(device,&handle)){perror("Unable to open a device"); exit(-1);};
 			libusb_free_device_list(list,1);
@@ -54,3 +56,61 @@ void unclaim_active_config(libusb_device* device){
 	}
 
 }
+
+void save_interrupt_endpoints(void)
+{
+	uint8_t i,k;
+	struct libusb_interface interf;
+	struct libusb_interface_descriptor interd;
+	struct libusb_endpoint_descriptor endp;
+	uint8_t endpoint_type;
+	uint8_t cpt = 0;
+	uint8_t done;
+	struct libusb_config_descriptor * config;
+	
+	libusb_device* my_device = libusb_get_device(handle);
+	libusb_get_config_descriptor(my_device,NUM_CONFIG,&config);
+
+	for(i=0; i<config->bNumInterfaces; i++)
+	{
+		done = 0;
+		interf = (config->interface)[i];
+		interd = (interf.altsetting)[0];
+
+		for(k=0; k<interd.bNumEndpoints; k++)
+		{
+			endp = (interd.endpoint)[k];
+			endpoint_type = endp.bmAttributes & 0x03;
+			if(endpoint_type == 3)
+			{
+				endp_list[cpt] = endp;
+				cpt++;
+				done = 1;	
+			}
+			
+			if(done == 1){break;}
+			
+			
+		}		
+		
+		
+		if(libusb_claim_interface(handle,interd.bInterfaceNumber))
+		{perror("Claim error"); exit(-1);}
+				
+	}
+
+}
+
+
+uint8_t key_pressed(void)
+{
+	uint8_t endpoint_in = endp_list[0].bEndpointAddress;
+	unsigned char data[8]; 
+	int size=8; 
+	int timeout=10;
+	int bytes_in;
+	libusb_interrupt_transfer(handle,endpoint_in,data,size,&bytes_in,timeout);
+	if(bytes_in>0){return data[0];}
+	else{return 0;}
+}
+

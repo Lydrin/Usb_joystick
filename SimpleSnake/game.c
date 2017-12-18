@@ -3,6 +3,7 @@
 #include <time.h>
 #include <string.h>
 #include <stdlib.h>
+#include "usb_host.h"
 
 #define DELAY 50000
 #define UP 1
@@ -14,6 +15,14 @@
 #define FAST 50
 #define INSANE 5
 #define INACTIV 0
+
+/* USB KEY */
+
+#define USBKEY_LEFT 48
+#define USBKEY_RIGHT 34
+#define USBKEY_UP 36
+#define USBKEY_DOWN 40
+#define USBKEY_FCT 33
 
 /* Game parameters */
 
@@ -63,20 +72,16 @@ char title[] = "Simple Snake v1.0";
 void set_dir(int c)
 {
 	switch(c) {
-		case 'q':
-		case KEY_LEFT:
+		case USBKEY_LEFT:
 			dir=LEFT;
 			break;
-		case 'd':
-		case KEY_RIGHT:
+		case USBKEY_RIGHT:
 			dir=RIGHT;
 			break;
-		case 'z':
-		case KEY_UP:
+		case USBKEY_UP:
 			dir=UP;
 			break;
-		case 's':
-		case KEY_DOWN:
+		case USBKEY_DOWN:
 			dir=DOWN;
 			break;
 	}
@@ -111,7 +116,6 @@ void bonus_create(void)
 	int rand_x;
 	int rand_y;
 	int add_bonus = rand()%spawning_rate;
-	char str[12];
 
 	if(add_bonus == 1 && nb_bonus < max_bonus)
 	{
@@ -153,7 +157,6 @@ void bonus_disp(void)
 {
 
 	int i;
-	char str[12];
 	for(i=0; i<max_bonus; i++)
 	{
 		if(bonus_list[i].activ)
@@ -243,7 +246,7 @@ void menu_disp(void)
 	box(menu,0,0);
 	refresh();
 	wrefresh(menu);
-	keypad(menu, true);
+	//keypad(menu, true);
 
 	char* choices[4];
 	choices[0] = "LOW";
@@ -252,7 +255,6 @@ void menu_disp(void)
 	choices[3] = "INSANE";
 	int choice;
 	int highlight = 0;
-	int selected = 0;
 	int i; 
 
 	while(1)
@@ -268,15 +270,16 @@ void menu_disp(void)
 			mvwprintw(menu, i+3, 1, choices[i]);
 			wattroff(menu, A_REVERSE);
 		}
-		choice = wgetch(menu);
+		
+		choice = key_pressed();
+		
 		switch(choice)
 		{
-
-			case KEY_UP:
+			case USBKEY_UP:
 				highlight--;
 				if(highlight == -1){highlight = 3;}
 				break;
-			case KEY_DOWN:
+			case USBKEY_DOWN:
 				highlight++;
 				if(highlight == 4){highlight = 0;}
 				break;
@@ -284,7 +287,7 @@ void menu_disp(void)
 				break;
 		}
 
-		if(choice == 10){ //Enter
+		if(choice == USBKEY_FCT){ //Enter
 			switch(highlight)
 			{
 				case 0:
@@ -302,6 +305,8 @@ void menu_disp(void)
 			}
 			break;
 		}
+		
+		wrefresh(menu);
 	
 	}
 	
@@ -321,7 +326,6 @@ int quit_disp(void)
 	choices[1] = "QUIT";
 	int choice;
 	int highlight = 0;
-	int selected = 0;
 	int i; 
 
 	while(1)
@@ -337,15 +341,15 @@ int quit_disp(void)
 			mvwprintw(quit, i+3, 1, choices[i]);
 			wattroff(quit, A_REVERSE);
 		}
-		choice = wgetch(quit);
+		choice = key_pressed();
 		switch(choice)
 		{
 
-			case KEY_UP:
+			case USBKEY_UP:
 				highlight--;
 				if(highlight == -1){highlight = 1;}
 				break;
-			case KEY_DOWN:
+			case USBKEY_DOWN:
 				highlight++;
 				if(highlight == 2){highlight = 0;}
 				break;
@@ -353,7 +357,7 @@ int quit_disp(void)
 				break;
 		}
 
-		if(choice == 10){ //Enter
+		if(choice == USBKEY_FCT){ //Enter
 			switch(highlight)
 			{
 				case 0:
@@ -363,6 +367,7 @@ int quit_disp(void)
 			}
 
 		}
+		wrefresh(quit);
 	
 	}
 
@@ -552,6 +557,7 @@ int crash_check(Snake* snake)
 
 int main(int argc, char *argv[]) 
 {
+	init_usb();
 	Snake snake;
 	int ch;
 	int speed;
@@ -576,8 +582,8 @@ int main(int argc, char *argv[])
 
 		getmaxyx(stdscr, max_y, max_x);
 
-		ch = getch();
-		if(ch == 27){if(quit_disp()){break;}} //Escape
+		ch = key_pressed();//getch();
+		if(ch == USBKEY_FCT){if(quit_disp()){break;}} //Escape
 
 		set_dir(ch);
 				

@@ -2,7 +2,7 @@
 
 clear
 echo ---------------------------------------------
-echo \* SimpleSnake 1.2              
+echo \* SimpleSnake 1.3            
 echo \* by Antoine Duquenoy and Anthony Durot
 echo ---------------------------------------------
 

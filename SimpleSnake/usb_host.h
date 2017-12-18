@@ -6,9 +6,11 @@
 
 #define ID_PRODUCT 0x1234
 #define NUM_CONFIG 0
+
 extern libusb_device_handle * handle;
 extern struct libusb_endpoint_descriptor endp_list[10];
 
+uint8_t init_usb(void);
 int get_usb_device(libusb_context*);
 void unclaim_active_config(libusb_device*);
 void save_interrupt_endpoints(void);

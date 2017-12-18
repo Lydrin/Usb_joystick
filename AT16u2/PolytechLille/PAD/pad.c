@@ -2,7 +2,7 @@
 #include <LUFA/Drivers/Peripheral/Serial.h>
 
 #define USART_BAUDRATE 9600
-#define USART_DOUBLE_SPEED false
+#define USART_DOUBLE_SPEED 0
 
 
 void EVENT_USB_Device_ConfigurationChanged(void)
@@ -12,6 +12,7 @@ void EVENT_USB_Device_ConfigurationChanged(void)
 	USB_Device_EnableSOFEvents();
 }
 
+/*
 void EVENT_USB_Device_Connect(void)
 {
 
@@ -21,13 +22,15 @@ void EVENT_USB_Device_Disconnect(void)
 {
 
 }
+*/
 
 void SendNextReport(void)
 {
 	uint8_t data;
+	data = 0xBB;
 	if(Serial_IsCharReceived())
 	{
-		data = Serial_ReceiveByte(); //
+		data = 0xCC;//Serial_ReceiveByte();
 	}
 
 	Endpoint_SelectEndpoint(PAD_IN_EPADDR);
@@ -69,19 +72,14 @@ int main(void)
 	SetupHardware();
 	GlobalInterruptEnable();
 
-	for (;;)
-	  PAD_Task();
+	for (;;){
 	  USB_USBTask();
+	  PAD_Task();
+	}
 }
 
 void SetupHardware(void)
 {
-#if (ARCH == ARCH_AVR8)
-	MCUSR &= ~(1 << WDRF);
-	wdt_disable();
-	clock_prescale_set(clock_div_1);
-#endif
-
 	Serial_Init(USART_BAUDRATE, USART_DOUBLE_SPEED);
 	USB_Init();
 }

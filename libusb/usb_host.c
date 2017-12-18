@@ -21,8 +21,8 @@ int main(void)
 	uint8_t bus = libusb_get_bus_number(my_device);
 	uint8_t address = libusb_get_device_address(my_device);
 	printf("Device found @ (Bus:Adress) %d:%d\n",bus, address);
-	printf("Vendor ID 0x0%x\n", desc.idVendor);
-	printf("Product ID 0x0%x\n", desc.idProduct);
+	printf("Vendor ID 0x%x\n", desc.idVendor);
+	printf("Product ID 0x%x\n", desc.idProduct);
 
 	
 	/* Détacher le kernel de la configuration active */
@@ -63,16 +63,16 @@ int main(void)
 			switch(endpoint_type)
 			{
 				case 0:
-					printf("\t\t\t-Type : Control\n");
+					printf("\t\t\t- Type : Control\n");
 					break;
 				case 1:
-					printf("\t\t\t-Type Isochronous\n");
+					printf("\t\t\t- Type Isochronous\n");
 					break;
 				case 2:
-					printf("\t\t\t-Type : Bulk\n");
+					printf("\t\t\t- Type : Bulk\n");
 					break;
 				case 3:
-					printf("\t\t\t-Type : Interrupt\n");
+					printf("\t\t\t- Type : Interrupt\n");
 					endp_list[cpt] = endp;
 					cpt++;
 					done = 1;
@@ -91,7 +91,30 @@ int main(void)
 				
 	}
 
+	libusb_attach_kernel_driver(handle,0);
+	libusb_attach_kernel_driver(handle,1);
 
+	//uint8_t endpoint_out=endp_list[1].bEndpointAddress;   /* ID of endpoint (bit 8 is 0) */
+	uint8_t endpoint_in=endp_list[0].bEndpointAddress;    /* ID of endpoint (bit 8 is 1) */
+	unsigned char data[8];    /* data to send or to receive */
+	int size=8;           /* size to send or maximum size to receive */
+	int timeout=200;        /* timeout in ms */
+
+	/* OUT interrupt, from host to device */
+	/*int bytes_out;
+	int status=libusb_interrupt_transfer(handle,endpoint_out,data,size,&bytes_out,timeout);
+	if(status!=0){ perror("libusb_interrupt_transfer"); exit(-1); }
+	*/
+	/* IN interrupt, host polling device */
+	while(1){
+		int bytes_in;
+		int status=libusb_interrupt_transfer(handle,endpoint_in,data,size,&bytes_in,timeout);
+		if(status!=0){ perror("libusb_interrupt_transfer"); exit(-1); }
+		for(int i = 0;i<bytes_in;i++){
+			printf("Received : %d : %x\n",i,data[i]);
+		}
+	}
+/*
 	for(i=0; i<config->bNumInterfaces; i++)
 	{		
 		interf = (config->interface)[i];
@@ -99,9 +122,7 @@ int main(void)
 		libusb_release_interface(handle,interd.bInterfaceNumber);		
 
 	}
-
-	//libusb_attach_kernel_driver(handle,0);
-	//libusb_attach_kernel_driver(handle,1);
+*/
 
 	libusb_close(handle);
 	libusb_exit(context);

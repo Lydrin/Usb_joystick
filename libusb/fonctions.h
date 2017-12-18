@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <libusb-1.0/libusb.h>
 
-#define ID_PRODUCT 0x1C50
+#define ID_PRODUCT 0x1234
 extern libusb_device_handle * handle;
 
 int get_usb_device(libusb_context*, struct libusb_device_descriptor*);

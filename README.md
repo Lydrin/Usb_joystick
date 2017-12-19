@@ -1,5 +1,4 @@
 # Tutorat Système (IMA4 - 2017/2018)
----
 </br>
 
 #### **SimpleSnake** | Contrôle d'un jeu à l'aide d'un périphérique USB 

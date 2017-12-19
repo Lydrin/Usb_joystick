@@ -555,9 +555,9 @@ int crash_check(Snake* snake)
 /* Programme principale */
 
 
-int main(int argc, char *argv[]) 
+int main(void) 
 {
-	init_usb();
+	if(init_usb()){printf("Unable to open the USB device\n");exit(-1);}
 	Snake snake;
 	int ch;
 	int speed;

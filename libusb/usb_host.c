@@ -33,16 +33,6 @@ uint8_t init_usb(void)
 
 	save_interrupt_endpoints();
 	
-	/*
-	while(1){
-		uint8_t key = key_pressed();
-		if(key != 0){printf("Key : %d\n",key);}
-	}
-
-	libusb_close(handle);
-	libusb_exit(context);
-	*/
-
 	return 0;
 }
 
@@ -144,14 +134,15 @@ void save_interrupt_endpoints(void)
 uint8_t key_pressed(void)
 {
 	uint8_t endpoint_in = endp_list[0].bEndpointAddress;
-	unsigned char data[8]; 
+	unsigned char data; 
 	int size=8; 
 	int timeout=10;
 	int bytes_in;
-	libusb_interrupt_transfer(handle,endpoint_in,data,size,&bytes_in,timeout);
-	if(bytes_in>0){
-		return data[0];
-	}else{
+	libusb_interrupt_transfer(handle,endpoint_in,&data,size,&bytes_in,timeout);
+	if(bytes_in == 1){
+		return data;
+	}
+	else{
 		return 0;
 	}
 }

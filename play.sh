@@ -2,7 +2,7 @@
 
 clear
 echo ---------------------------------------------
-echo \* SimpleSnake 1.3            
+echo \* SimpleSnake 2.0            
 echo \* by Antoine Duquenoy and Anthony Durot
 echo ---------------------------------------------
 
@@ -20,18 +20,19 @@ else
 	echo -e "\n"
 fi
 
-gcc -o game game.c -lncurses
+make cleanall all
+echo -e "\n"
 echo "-------- INSTRUCTIONS --------"
 echo "* Use the arrow keys to move"
-echo "* ESCAPE to pause"
+echo "* Joystick button to pause"
 echo "------------------------------"
 echo -e "\n"
 read -p "Start the game [y/n] : " yn
 if [ $yn = "y" ] || [ $yn = "Y" ]
 then
-	./game
+	./snake
 else
-	echo To play later .\/game
+	echo See you \!
 fi
 
 exit 0

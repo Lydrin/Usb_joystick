@@ -65,7 +65,7 @@ int max_x, max_y;
 Bonus bonus_list[MAX_BONUS];
 int dir = RIGHT;
 char snake_shape[] = "o";
-char title[] = "Simple Snake v1.0";
+char title[] = "Simple Snake v2.0";
 
 /* Fonctions */
 
@@ -164,7 +164,6 @@ void bonus_disp(void)
 			mvprintw(bonus_list[i].pos_y, bonus_list[i].pos_x, "+");
 		}
 	}
-
 }
 
 void score_disp(void)
@@ -218,7 +217,6 @@ void snake_grow(Snake* snake)
 			head_add(snake, new_pos);
 			break;
 	}	
-
 }
 
 void bonus_check(Snake* snake)
@@ -235,7 +233,6 @@ void bonus_check(Snake* snake)
 			break;
 		}
 	}	
-	
 }
 
 
@@ -246,7 +243,6 @@ void menu_disp(void)
 	box(menu,0,0);
 	refresh();
 	wrefresh(menu);
-	//keypad(menu, true);
 
 	char* choices[4];
 	choices[0] = "LOW";
@@ -309,7 +305,7 @@ void menu_disp(void)
 		wrefresh(menu);
 	
 	}
-	
+	flushinp();
 }
 
 int quit_disp(void)
@@ -361,8 +357,10 @@ int quit_disp(void)
 			switch(highlight)
 			{
 				case 0:
+					flushinp();
 					return 0;	
 				case 1:
+					flushinp();
 					return 1;
 			}
 
@@ -388,6 +386,7 @@ void menu2_disp(void)
 	mvwgetstr(menu2, 3, 10, amount);
 	//wgetch(menu2);
 	max_bonus = atoi(amount);
+	flushinp();
 }
 
 void head_del(Snake* snake)
@@ -437,9 +436,6 @@ void init_snake(Snake* snake)
 
 void snake_move(Snake* snake, int dir)
 {
-
-	//Vérifier que la direction n'est pas opposée
-
 	int pos_x = snake_end.pos.x;
 	int pos_y = snake_end.pos.y;
 	int dir_l = snake_end.pos.dir;
@@ -512,14 +508,12 @@ void snake_move(Snake* snake, int dir)
 
 void snake_disp(Snake* snake)
 {
-
     ptr_cell temp = *snake;
     while(temp != NULL)
     {
 		mvprintw(((*temp).pos.x), ((*temp).pos.y), snake_shape);
         temp = (*temp).next;
     }
-
 }
 
 
@@ -561,16 +555,18 @@ int main(void)
 	Snake snake;
 	int ch;
 	int speed;
+	int start = 1;
 	srand(time(NULL));
 	initscr();
 	cbreak();
 	curs_set(FALSE);
-	keypad(stdscr, TRUE);
+	keypad(stdscr, FALSE);
 	
 	menu_disp();
 	erase();
 	menu2_disp();	
-
+	erase();
+	
 	init_snake(&snake);
 	init_bonus();
 
@@ -582,9 +578,9 @@ int main(void)
 
 		getmaxyx(stdscr, max_y, max_x);
 
-		ch = key_pressed();//getch();
-		if(ch == USBKEY_FCT){if(quit_disp()){break;}} //Escape
-
+		ch = key_pressed();
+		if(ch == USBKEY_FCT && !start){if(quit_disp()){break;}}
+		start = 0; /* Eviter d'afficher le menu pause en cas d'appuie sur le bouton du joystick dans le menu 2 */
 		set_dir(ch);
 				
 		clear();
@@ -603,7 +599,7 @@ int main(void)
 	
 		refresh();
 		usleep(DELAY);
-
+		
 	}
 
 	endwin();

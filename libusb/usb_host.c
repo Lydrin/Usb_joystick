@@ -149,6 +149,9 @@ uint8_t key_pressed(void)
 	int timeout=10;
 	int bytes_in;
 	libusb_interrupt_transfer(handle,endpoint_in,data,size,&bytes_in,timeout);
-	if(bytes_in>0){return data[0];}
-	else{return 0;}
+	if(bytes_in>0){
+		return data[0];
+	}else{
+		return 0;
+	}
 }

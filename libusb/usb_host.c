@@ -146,3 +146,14 @@ uint8_t key_pressed(void)
 		return 0;
 	}
 }
+
+void usb_send(uint8_t msg)
+{
+	uint8_t data = msg;
+	int endpoint_out=endp_list[1].bEndpointAddress;
+	int size=8;
+	int timeout=50;
+	int bytes_out;
+	libusb_interrupt_transfer(handle,endpoint_out,&data,size,&bytes_out,timeout);
+}
+

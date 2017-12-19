@@ -15,5 +15,6 @@ int get_usb_device(libusb_context*);
 void unclaim_active_config(libusb_device*);
 void save_interrupt_endpoints(void);
 uint8_t key_pressed(void);
+void usb_send(uint8_t);
 
 #endif

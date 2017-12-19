@@ -579,7 +579,17 @@ int main(void)
 		getmaxyx(stdscr, max_y, max_x);
 
 		ch = key_pressed();
-		if(ch == USBKEY_FCT && !start){if(quit_disp()){break;}}
+		if(ch == USBKEY_FCT && !start)
+		{
+			usb_send('1');
+			usb_send('1');
+			if(quit_disp())
+			{
+				break;
+			}
+			usb_send('0');
+			usb_send('0');
+		}
 		start = 0; /* Eviter d'afficher le menu pause en cas d'appuie sur le bouton du joystick dans le menu 2 */
 		set_dir(ch);
 				

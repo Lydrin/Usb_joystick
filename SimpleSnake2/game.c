@@ -43,7 +43,6 @@ typedef Cell* Snake;
 
 typedef Cell* ptr_cell;
 
-
 /* Variables globales */
 
 Snake snake;
@@ -179,21 +178,24 @@ void bonus_disp(void)
 	}
 }
 
-void score_disp()
+void score_disp(int id)
 {
 	char score_txt[16] = "Score : ";
-	char score_txt_b[16] = "Score : ";
 	char score_nb[8];
-	char score_nb_b[8];
 	
-	sprintf(score_nb, "%d", score);
-	sprintf(score_nb_b, "%d", score_b);
+	if(id == 1)
+	{
+		sprintf(score_nb, "%d", score);
+		strcat(score_txt, score_nb);
+		mvprintw(0, 0, score_txt);
+	}
 	
-	strcat(score_txt, score_nb);
-	mvprintw(0, 0, score_txt);
-	
-	strcat(score_txt_b, score_nb_b);
-	mvprintw(max_y-1, 0, score_txt_b);
+	else if(id == 2)
+	{
+		sprintf(score_nb, "%d", score_b);
+		strcat(score_txt, score_nb);
+		mvprintw(max_y-1, 0, score_txt);
+	}
 }
 
 void head_add(Snake* snake, Pos pos) //début
@@ -584,17 +586,22 @@ void snake_disp(Snake* snake)
 }
 
 
-int wall_check(void)
+int wall_check(int id)
 {
-	if(snake_end_b.pos.x <= 1){return 1;} //En haut
-	if(snake_end_b.pos.x >= max_y-2){return 1;} //En bas
-	if(snake_end_b.pos.y <= 0){return 1;} //Gauche
-	if(snake_end_b.pos.y >= max_x-1){return 1;} //Droite
-
-	if(snake_end.pos.x <= 1){return 1;} //En haut
-	if(snake_end.pos.x >= max_y-2){return 1;} //En bas
-	if(snake_end.pos.y <= 0){return 1;} //Gauche
-	if(snake_end.pos.y >= max_x-1){return 1;} //Droite
+	if(id == 2)
+	{
+		if(snake_end_b.pos.x <= 1){return 1;} //En haut
+		if(snake_end_b.pos.x >= max_y-2){return 1;} //En bas
+		if(snake_end_b.pos.y <= 0){return 1;} //Gauche
+		if(snake_end_b.pos.y >= max_x-1){return 1;} //Droite
+	}
+	else if(id == 1)
+	{
+		if(snake_end.pos.x <= 1){return 1;} //En haut
+		if(snake_end.pos.x >= max_y-2){return 1;} //En bas
+		if(snake_end.pos.y <= 0){return 1;} //Gauche
+		if(snake_end.pos.y >= max_x-1){return 1;} //Droite
+	}
 	
 	return 0;
 }
@@ -651,8 +658,16 @@ int crash_snake_check(Snake* snake, int id)
 
 int main(int argc, char *argv[]) 
 {
+	int nb_player = 1;
+	nb_player = atoi(argv[1]);
+	if(nb_player != 1 && nb_player != 2)
+	{
+		nb_player = 1;
+	}
+		
 	Snake snake;
 	Snake snake_b;
+	
 	int ch;
 	int speed;
 	srand(time(NULL));
@@ -672,7 +687,8 @@ int main(int argc, char *argv[])
 
 	while(1) {
 
-		speed = 50-min(score,score_b)*2;
+		if(nb_player == 2){speed = 50-min(score,score_b)*2;}
+		else{speed = 50-score*2;}
 		if(speed < 0){speed = 0;}
 		timeout(speed);
 
@@ -682,28 +698,36 @@ int main(int argc, char *argv[])
 		if(ch == 27){if(quit_disp()){break;}} //Escape
 
 		if(ch == KEY_UP || ch == KEY_DOWN || ch == KEY_LEFT || ch == KEY_RIGHT){set_dir(ch,1);}
-		if(ch == 'z' || ch == 's' || ch == 'q' || ch == 'd'){set_dir(ch,2);}
+		if(nb_player == 2)
+		{
+			if(ch == 'z' || ch == 's' || ch == 'q' || ch == 'd'){set_dir(ch,2);}
+		}
 				
 		clear();
 		UI_draw();
-		score_disp();
+		score_disp(1);
+		if(nb_player == 2){score_disp(2);}
 		
 		bonus_create();
 		bonus_disp();
 
 		snake_move(&snake,dir,1);
-		snake_move(&snake_b,dir_b,2);
+		if(nb_player == 2){snake_move(&snake_b,dir_b,2);}
 		snake_disp(&snake);
-		snake_disp(&snake_b);
+		if(nb_player == 2){snake_disp(&snake_b);}
 
-		if(wall_check()){break;}
+		if(wall_check(1)){break;}		
 		if(crash_check(&snake)){break;}
-		if(crash_check(&snake_b)){break;}
 		bonus_check(&snake,1);
-		bonus_check(&snake_b,2);
-		if(crash_snake_check(&snake,2)){break;}
-		if(crash_snake_check(&snake_b,1)){break;}
-	
+		
+		if(nb_player == 2)
+		{
+			if(crash_check(&snake_b)){break;}
+			bonus_check(&snake_b,2);
+			if(crash_snake_check(&snake,2)){break;}
+			if(crash_snake_check(&snake_b,1)){break;}
+		}
+		
 		refresh();
 		usleep(DELAY);
 

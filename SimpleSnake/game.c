@@ -18,8 +18,6 @@
 
 /* USB Keys */
 
-/* USB KEY */
-
 #define USBKEY_LEFT 48
 #define USBKEY_RIGHT 34
 #define USBKEY_UP 36
@@ -689,8 +687,7 @@ int main(int argc, char *argv[])
 	Snake snake;
 	Snake snake_b;
 	
-	int ch, ch2, speed;
-	int start = 1;
+	int ch, ch2, speed, loose = 0, start = 1;;
 	srand(time(NULL));
 	initscr();
 	cbreak();
@@ -749,17 +746,17 @@ int main(int argc, char *argv[])
 		snake_disp(&snake);
 		if(nb_player == 2){snake_disp(&snake_b);}
 
-		if(wall_check(1)){break;}		
-		if(crash_check(&snake)){break;}
+		if(wall_check(1)){loose = 1;break;}		
+		if(crash_check(&snake)){loose = 1;break;}
 		bonus_check(&snake,1);
 		
 		if(nb_player == 2)
 		{
-			if(wall_check(2)){break;}
-			if(crash_check(&snake_b)){break;}
+			if(wall_check(2)){loose = 2;break;}
+			if(crash_check(&snake_b)){loose = 2;break;}
 			bonus_check(&snake_b,2);
-			if(crash_snake_check(&snake,2)){break;}
-			if(crash_snake_check(&snake_b,1)){break;}
+			if(crash_snake_check(&snake,2)){loose = 2;break;}
+			if(crash_snake_check(&snake_b,1)){loose = 1;break;}
 		}
 		
 		refresh();
@@ -769,4 +766,8 @@ int main(int argc, char *argv[])
 	usb_send('0');
 	usb_send('0');
 	endwin();
+	printf("\n-----------------------------\n");
+	if(loose == 1){printf("Player 1 lost the game !\n");}
+	else{printf("Player 2 lost the game !\n");}
+	printf("-----------------------------\n");
 }

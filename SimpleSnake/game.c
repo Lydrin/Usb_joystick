@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "usb_host.h"
 
-#define DELAY 50000
+#define DELAY 2000
 #define UP 1
 #define DOWN 2
 #define RIGHT 3
@@ -141,11 +141,8 @@ void bonus_create(void)
 
 	if(add_bonus == 1 && nb_bonus < max_bonus)
 	{
-		rand_x = rand()%max_x-1;
-		rand_y = rand()%max_y-2;
-		
-		if(rand_y <= 1){rand_y = 2;}
-		if(rand_x == 0){rand_x = 1;}
+		rand_x = 2+(rand()%(max_x-4));
+		rand_y = 3+(rand()%(max_y-6));
 		
 		for(i=0; i<max_bonus; i++)
 		{
@@ -687,12 +684,13 @@ int main(int argc, char *argv[])
 	Snake snake;
 	Snake snake_b;
 	
-	int ch, ch2, speed, loose = 0, start = 1;;
+	int ch, ch2, speed = 0, loose = 0, start = 1;;
 	srand(time(NULL));
 	initscr();
 	cbreak();
 	curs_set(FALSE);
 	keypad(stdscr, TRUE);
+	timeout(speed);
 	
 	menu_disp();
 	erase();
@@ -705,10 +703,9 @@ int main(int argc, char *argv[])
 
 	while(1) {
 
-		if(nb_player == 2){speed = 50-min(score,score_b)*2;}
-		else{speed = 50-score*2;}
-		if(speed < 0){speed = 0;}
-		timeout(speed);
+		//if(nb_player == 2){speed = 50-min(score,score_b)*2;}
+		//else{speed = 50-score*2;}
+		//if(speed < 0){speed = 0;}
 
 		getmaxyx(stdscr, max_y, max_x);
 
@@ -768,6 +765,7 @@ int main(int argc, char *argv[])
 	endwin();
 	printf("\n-----------------------------\n");
 	if(loose == 1){printf("Player 1 lost the game !\n");}
+	else if(loose == 0){printf("Game over !\n");}
 	else{printf("Player 2 lost the game !\n");}
 	printf("-----------------------------\n");
 }

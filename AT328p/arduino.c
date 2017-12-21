@@ -90,7 +90,7 @@ int main(void)
 		    if(msg != 0x20)
 			{
 		   		 send_serial(msg);
-				 _delay_ms(100);
+				 _delay_ms(10);
 		   		 state = -1;
 			}
 	    }

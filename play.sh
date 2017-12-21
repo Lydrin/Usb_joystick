@@ -23,16 +23,25 @@ fi
 make cleanall all
 echo -e "\n"
 echo "-------- INSTRUCTIONS --------"
-echo "* Use the arrow keys to move"
-echo "* Joystick button to pause"
+echo -e "\n"
+echo "* Player 1 :"
+echo "** Use the gamepad to move"
+echo "** Joystick button to pause"
+echo -e "\n"
+echo "* Player 2 :"
+echo "** Use the arrow keys to move"
+echo "** Joystick button to pause"
+echo -e "\n"
 echo "------------------------------"
 echo -e "\n"
 read -p "Start the game [y/n] : " yn
 if [ $yn = "y" ] || [ $yn = "Y" ]
 then
-	./snake
+	read -p "Numbers of players [1/2] : " p
+	./snake $p
 else
 	echo See you \!
 fi
 
+rm snake
 exit 0

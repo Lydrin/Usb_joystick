@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -W -Wall -pedantic -g -I ./libusb
 LDFLAGS = -lusb-1.0 -lncurses
 EXEC = snake
-SRC = $(wildcard libusb/*.c) $(wildcard SimpleSnake2/*.c)
+SRC = $(wildcard libusb/*.c) $(wildcard SimpleSnake/*.c)
 OBJ = $(SRC:.c=.o)
 
 all: $(EXEC)

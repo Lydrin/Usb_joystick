@@ -136,7 +136,7 @@ uint8_t key_pressed(void)
 	uint8_t endpoint_in = endp_list[0].bEndpointAddress;
 	unsigned char data; 
 	int size=8; 
-	int timeout=10;
+	int timeout=20;
 	int bytes_in;
 	libusb_interrupt_transfer(handle,endpoint_in,&data,size,&bytes_in,timeout);
 	if(bytes_in == 1){

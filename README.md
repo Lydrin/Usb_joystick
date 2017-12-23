@@ -21,9 +21,9 @@ Cette version du jeu Snake est jouable à 1 ou 2 joueurs et la taille de l'envir
 
 ## Périphérique non reconnu ?
 
-* Se rendre dans le dossier`Usb_joystick/AT16u2/PolytechLille/PAD`
-* Effectuer un `make clean all`
-* Flasher l'atmega16u2 avec le fichier `pad.hex`
+* Se rendre dans le dossier `Usb_joystick/AT16u2/PolytechLille/PAD`
+* Lancez le script `upload.sh`
+* Débranchez et rebranchez la manette
 
 
 ## Précisions sur le projet

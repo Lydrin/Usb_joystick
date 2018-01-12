@@ -135,8 +135,8 @@ uint8_t key_pressed(void)
 {
 	uint8_t endpoint_in = endp_list[0].bEndpointAddress;
 	unsigned char data; 
-	int size=8; 
-	int timeout=120;
+	int size=1; 
+	int timeout=10;
 	int bytes_in;
 	libusb_interrupt_transfer(handle,endpoint_in,&data,size,&bytes_in,timeout);
 	if(bytes_in == 1){return data;}
@@ -147,7 +147,7 @@ void usb_send(uint8_t msg)
 {
 	uint8_t data = msg;
 	int endpoint_out=endp_list[1].bEndpointAddress;
-	int size=8;
+	int size=1;
 	int timeout=50;
 	int bytes_out;
 	libusb_interrupt_transfer(handle,endpoint_out,&data,size,&bytes_out,timeout);

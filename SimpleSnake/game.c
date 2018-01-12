@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "usb_host.h"
 
-#define DELAY 2000
+#define DELAY 100000 //2000
 #define UP 1
 #define DOWN 2
 #define RIGHT 3

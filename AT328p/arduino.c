@@ -3,30 +3,14 @@
 #include <util/delay.h>
 #include <stdint.h>
 
-//Bouton haut <=> D4 <=> PD4
-//Bouton gauche <=> D6 <=> PD6
-//Bouton droit <=> D3 <=> PD3 
-//Bouton bas <=> D5 <=> PD5
-
-#define BOUTON_PORT PORTD
-#define BOUTON_DDR DDRB
-#define BOUTON_PCIE PCIE2
-
-#define BOUTON_HAUT_PIN PD4
-#define BOUTON_HAUT_INT PCINT20
-
-#define BOUTON_BAS_PIN PD5
-#define BOUTON_BAS_INT PCINT21
-
-#define BOUTON_GAUCHE_PIN PD6
-#define BOUTON_GAUCHE_INT PCINT22
-
-#define BOUTON_DROIT_PIN PD3
-#define BOUTON_DROIT_INT PCINT19
+//Bouton haut   => D4
+//Bouton gauche => D6
+//Bouton droit  => D3
+//Bouton bas    => D5
 
 #define BAUDRATE 103
 
-volatile int state = -1;
+volatile int state = 0;
 
 void init_boutons(void)
 {    
@@ -45,7 +29,7 @@ void init_serial(void)
     UBRR0H = 0;
     UBRR0L = baudrate;
 
-    UCSR0B = ((1 << RXCIE0) |(1 << TXEN0) | (1 << RXEN0));
+    UCSR0B = ((1 << RXCIE0) | (1 << TXEN0) | (1 << RXEN0));
 
     UCSR0C = ((1 << UCSZ01) | (1 << UCSZ00));
 
@@ -64,10 +48,10 @@ void output_init(void){
 
 ISR (USART_RX_vect)
 {
-	if(UDR0 == 49){ //Allumage de la LED
+	if(UDR0 == 49){ // Allumage de la LED
 		PORTB |= 0x20;
 	}
-	if(UDR0 == 48){ //Extinction de la LED
+	if(UDR0 == 48){ // Extinction de la LED
 		PORTB &= 0xDF;
 	}
 }
@@ -85,13 +69,13 @@ int main(void)
     output_init();
     uint8_t msg;
     while(1){
-	    if(state!=-1){
+	    if(state!=0){
 		    msg = state | 0x20;
 		    if(msg != 0x20)
-			{
-		   		 send_serial(msg);
-				 _delay_ms(10);
-		   		 state = -1;
+			{    
+		   		send_serial(msg);
+				_delay_ms(100);
+		   		state = 0;
 			}
 	    }
     }

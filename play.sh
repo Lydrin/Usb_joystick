@@ -21,6 +21,7 @@ else
 fi
 
 make cleanall all
+
 echo -e "\n"
 echo "-------- INSTRUCTIONS --------"
 echo -e "\n"

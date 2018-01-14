@@ -11,9 +11,7 @@
 Cette version du jeu Snake est jouable à 1 ou 2 joueurs et la taille de l'environnement du jeu dépend simplement de la taille du terminal (il est possible de redimensionner en cours de partie mais les bonus à l'extérieur seront perdus). Le Joueur 1 contrôle son snake avec la manette et en cas de partie à deux, le Joueur 2 utilisera les flèches directionnelles du clavier. Dernière précision, les murs tuent.
 
 
-<p align="center">
   <img src="images/snake.gif"/>
-</p>
 
 
 ## Procédure de lancement
@@ -39,7 +37,6 @@ Cette version du jeu Snake est jouable à 1 ou 2 joueurs et la taille de l'envir
 
 
 #### Protocole USB
-<center>
 
 |      Endpoint IN       |     Enpoint OUT      |
 | :--------------------: | :------------------: |
@@ -48,8 +45,6 @@ Cette version du jeu Snake est jouable à 1 ou 2 joueurs et la taille de l'envir
 |   Bouton bas : `40`    |                      |
 |  Bouton gauche : `48`  |                      |
 | Bouton joystick : `33` |                      |
-
-</center>
 
 #### Protocole Série
 

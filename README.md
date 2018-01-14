@@ -40,6 +40,7 @@ Cette version du jeu Snake est jouable à 1 ou 2 joueurs et la taille de l'envir
 
 #### Protocole USB
 <center>
+
 |      Endpoint IN       |     Enpoint OUT      |
 | :--------------------: | :------------------: |
 |   Bouton haut : `36`   | Allumage LED : `49`  |
@@ -47,6 +48,7 @@ Cette version du jeu Snake est jouable à 1 ou 2 joueurs et la taille de l'envir
 |   Bouton bas : `40`    |                      |
 |  Bouton gauche : `48`  |                      |
 | Bouton joystick : `33` |                      |
+
 </center>
 #### Protocole Série
 

@@ -50,6 +50,7 @@ Cette version du jeu Snake est jouable à 1 ou 2 joueurs et la taille de l'envir
 | Bouton joystick : `33` |                      |
 
 </center>
+
 #### Protocole Série
 
 Même protocole que celui d'USB.
